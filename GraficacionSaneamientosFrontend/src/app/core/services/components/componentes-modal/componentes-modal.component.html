@@ -1,0 +1,236 @@
+<p-confirmDialog
+  appendTo="body"
+  header="Confirmar eliminación"
+  icon="pi pi-exclamation-triangle"
+  [style]="{ width: '400px' }"
+  styleClass="custom-confirm-dialog"
+  acceptLabel="Sí, eliminar"
+  rejectLabel="Cancelar"
+></p-confirmDialog>
+
+
+<div class="modal-overlay" (click)="cerrar()"></div>
+<div class="modal">
+  <h2>Componentes</h2>
+
+    <div class="form-group">
+      <label for="componente">Componente:</label>
+      <p-dropdown
+        id="componente"
+        [options]="componentes"
+        [(ngModel)]="componenteSeleccionado"
+        (onChange)="onComponenteSeleccionado($event)"
+        placeholder="Seleccione un componente"
+        styleClass="dropdown-estilizado"
+        appendTo="body"           
+        [filter]="true"
+        [scrollHeight]="'200px'"  
+        [autoDisplayFirst]="false"
+      ></p-dropdown>
+
+    </div>
+
+  <form>
+    <div class="form-group">
+      <label>Último cambio:</label>
+      <input type="text" [value]="updateTimeFormateado" [disabled]="!banderaUltimoCambio"/>
+    </div>
+
+    <div class="form-group">
+      <label>Identificador:</label>
+      <input type="text" [value]="id" [disabled]="!banderaIdentificador"/>
+    </div>
+
+    <div class="form-group">
+      <label>Nombre:</label>
+      <input type="text" id="name" name="name" [(ngModel)]="name" [disabled]="soloLectura || !banderaNombre"/>
+    </div>
+
+    <div class="form-group">
+      <label>Referencia:</label>
+      <input type="text" id="recipeReference" name="recipeReference" [(ngModel)]="recipeReference" [disabled]="soloLectura || !banderaReferencia"/>
+    </div>
+
+    <div class="form-group">
+      <label>Tipo:</label>
+      <select id="tipo" name="tipo" [(ngModel)]="tipo" (ngModelChange)="onTipoAutomaticaChange($event)" [disabled]="soloLectura || !banderaTipo">
+        <option [value]="0">-</option>
+        <option [value]="1">Sólido</option>
+        <option [value]="2">Líquido</option>
+      </select>
+    </div>
+
+      <label class = "bold">Solidos:</label>
+    <br>
+        <div class="checkbox-item">
+          <input 
+            type="checkbox" 
+            id="recircular" 
+            name="recircular" 
+            [(ngModel)]="recircular"
+            (ngModelChange)="onRecircularChange($event)"
+            [disabled]="soloLectura || !banderaRecircular"
+          />    
+          <label for="recircular">Recircular</label>
+        </div>
+
+        <div class="checkbox-item">
+          <input
+          type="checkbox"
+          id="dificil"
+          name="dificil"
+          [(ngModel)]="dificilDisolucion"
+          (ngModelChange)="onDisolucionChange($event)"
+          [disabled]="soloLectura || !banderaDisolucionDificil"
+          />
+          <label for="dificil">Disolución difícil (usar disolutor)</label>
+        </div>
+
+        <div class="checkbox-item">
+          <input
+          type="checkbox"
+          id="cargaDirecta"
+          name="cargaDirecta"
+          [(ngModel)]="cargaDirecta"
+          [disabled]="soloLectura || !banderaCargaDirecta"
+          />
+          <label for="bayoneta">Carga directa de agua</label>
+        </div>
+    <br>
+
+      <label class="bold">Liquidos:</label><br>
+
+    <div class="radio-item">
+      <input
+        type="radio"
+        id="tanque"
+        name="origen"
+        [(ngModel)]="origen"
+        (ngModelChange)="onOrigenChange($event)"
+        value="tanque"
+        [disabled]="soloLectura || !banderaTanque"
+      />
+      <label for="tanque">Tanque</label>
+    </div>
+
+    <div class="radio-item">
+      <input
+        type="radio"
+        id="bayoneta"
+        name="origen"
+        [(ngModel)]="origen"
+        (ngModelChange)="onOrigenChange($event)"
+        value="bayoneta"
+        [disabled]="soloLectura || !banderaBayoneta"
+      />
+      <label for="bayoneta">Bayoneta</label>
+    </div>
+
+
+    <div class="form-group">
+      <label>Masa:</label> 
+      <input type="number" id="masa" name="masa" min="0" (keypress)="onlyNumberAndPoint($event, mass)" [(ngModel)]="mass" [disabled]="soloLectura || !banderaMasa" /> kg
+    </div>
+
+    <div class="form-group">
+      <label>Agua:</label>
+      <input type="number" id="water" name="water" min="0" (keypress)="onlyNumberAndPoint($event, mass)" [(ngModel)]="water" [disabled]="soloLectura || !banderaAgua" /> kg
+    </div>
+
+      <label class = "bold">Agitación:</label>
+      <div class="checkbox-item">
+        <input
+          type="checkbox"
+          id="agitacion"
+          name="agitacion"
+          [(ngModel)]="agitacionAutomatica"
+          (ngModelChange)="onAgitacionAutomaticaChange($event)"
+          [disabled]="soloLectura || !banderaAutomatica"
+        />
+        <label for="auto">Automática</label>
+      </div>
+      <br>
+
+    <div class="form-group">
+      <label>Tiempo:</label>
+      <input type="number" id="hora" name="hora" min="0" (keypress)="onlyInteger($event)" placeholder="h" [(ngModel)]="agitacionHora" [disabled]="soloLectura || !agitacionAutomatica" />
+      <input type="number" id="minuto" name="minuto" min="0" (keypress)="onlyInteger($event)" placeholder="min" [(ngModel)]="agitacionMinuto" [disabled]="soloLectura || !agitacionAutomatica" />
+      <input type="number" id="segundo" name="segundo" min="0" (keypress)="onlyInteger($event)" placeholder="s" [(ngModel)]="agitacionSegundo" [disabled]="soloLectura || !agitacionAutomatica" />
+    </div>
+
+    <div class="checkbox-item">
+      <strong>Inventario:</strong>
+      <input
+        type="checkbox"
+        id="inventario"
+        name="inventario"
+        [(ngModel)]="inventario"
+        [disabled]="soloLectura || !banderaInventario"
+      />
+      <label for="auto">Excluir de la validación de códigos de barras</label>
+    </div>
+
+    <div class="form-group">
+      <label>Comentarios:</label>
+      <textarea 
+      rows="4"
+      id="comentarios"
+      name="comentarios"
+      [disabled]="soloLectura || !banderaComentarios"
+      [(ngModel)]="comentarios"
+      ></textarea>
+    </div>
+
+    <div class="modal-buttons">
+      <button type="button" class="btn save" (click)="guardado()" [disabled]="soloLectura || !banderaGuardar" >Guardar</button>
+      <button type="button" class="btn" (click)="banderaMostrarDialogo = true" [disabled]="soloLectura" >Nuevo</button>
+      <button type="button" class="btn danger" (click)="eliminar()" [disabled]="soloLectura || !banderaEliminar" >Eliminar</button>
+      <button type="button" class="btn" (click)="intentarCerrar()">Cancelar</button>
+    </div>
+  </form>
+</div>
+
+<p-dialog
+  header="Nuevo componente" 
+  [(visible)]="banderaMostrarDialogo" 
+  [modal]="true" 
+  [style]="{ width: '480px', height: '700px'}" 
+  [baseZIndex]="2000"
+>
+  <div class="form-grid">
+    <div class="form-group">
+      <label for="identificador">Identificador:</label>
+      <input id="identificador" name="identificador" type="text" pInputText [(ngModel)]="idNuevoComponente" />
+    </div>
+
+    <div class="form-group">
+      <label for="nombre">Nombre:</label>
+      <input id="nombre" name="nombre" type="text" pInputText [(ngModel)]="nombreNuevoComponente" />
+    </div>
+
+    <div class="form-group">
+      <label for="referencia">Referencia:</label>
+      <input id="referencia" name="referencia" type="text" pInputText [(ngModel)]="referenciaNuevoComponente" />
+    </div>
+
+    <div class="form-group">
+      <label for="tipo">Tipo:</label>
+      <p-dropdown
+        id="tipo"
+        name="tipo"
+        [options]="tipos"
+        [(ngModel)]="tipoNuevoComponente"
+        placeholder="-"
+        [style]="{ width: '100%', height: '100%' }"
+      ></p-dropdown>
+    </div>
+  </div>
+
+  <p-footer>
+    <div class="dialog-footer">
+      <button pButton type="button" label="Crear" (click)="validaNoObsoleto()" [disabled]="!puedeCrearNueva" class="p-button-primary"></button>
+      <button pButton type="button" label="Cancelar" (click)="limpiaCreaComponente()" class="p-button-secondary"></button>
+    </div>
+  </p-footer>
+
+</p-dialog>

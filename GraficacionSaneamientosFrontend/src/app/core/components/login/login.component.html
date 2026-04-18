@@ -1,0 +1,47 @@
+<div class="login-wrap">
+  <div class="card">
+    <img src="assets/LOGO-ICAP.png" alt="ICAP" class="logo" />
+
+    <h1>Administración de Recetas</h1>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="field">
+        <label>Usuario</label>
+        <input
+          type="text"
+          formControlName="userName"
+          placeholder="Tu usuario"
+          autocomplete="username"
+        />
+        <small *ngIf="f.userName.touched && f.userName.invalid">
+          Ingresa un usuario válido.
+        </small>
+      </div>
+
+      <div class="field">
+        <label>Contraseña</label>
+        <div class="pass-row">
+          <input
+            [type]="showPass ? 'text' : 'password'"
+            formControlName="pass"
+            placeholder="Tu contraseña"
+            autocomplete="current-password"
+            (keyup.enter)="submit()"
+          />
+          <button type="button" class="toggle" (click)="toggleShowPass()">
+            {{ showPass ? 'Ocultar' : 'Ver' }}
+          </button>
+        </div>
+        <small *ngIf="f.pass.touched && f.pass.invalid">
+          Ingresa una contraseña válida.
+        </small>
+      </div>
+
+      <div class="error" *ngIf="errorMsg">{{ errorMsg }}</div>
+
+      <button class="btn" type="submit" [disabled]="loading">
+        {{ loading ? 'Validando...' : 'Entrar' }}
+      </button>
+    </form>
+  </div>
+</div>

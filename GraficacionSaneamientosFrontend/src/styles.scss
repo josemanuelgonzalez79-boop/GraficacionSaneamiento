@@ -1,0 +1,27 @@
+:root {
+  --font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans",
+                 "Helvetica Neue", "Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol", sans-serif;
+}
+
+/* You can add global styles to this file, and also import other style files */
+@import "primeng/resources/themes/lara-light-blue/theme.css";
+@import "primeng/resources/primeng.min.css";
+@import "primeicons/primeicons.css";
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+// Garantiza que el panel del dropdown quede por encima del modal/backdrop 
+//Asegura que cualquier overlay de PrimeNG se pinte encima del modal/backdrop 
+.p-dropdown-panel,
+.p-multiselect-panel,
+.p-calendar .p-datepicker,
+.p-datepicker,
+.p-overlaypanel,
+.p-autocomplete-panel {
+  z-index: 7000 !important;   
+}
+
+.p-toast {
+  z-index: 12000 !important;
+}

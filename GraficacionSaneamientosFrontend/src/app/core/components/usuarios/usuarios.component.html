@@ -1,0 +1,252 @@
+<div class="modal-backdrop" (click)="cerrar()"></div>
+
+<div class="modal" role="dialog" aria-modal="true" aria-labelledby="titulo-usuarios" (click)="$event.stopPropagation()">
+  <div class="modal__header">
+    <h2 id="titulo-usuarios">Gestión de usuarios</h2>
+
+
+
+    <button class="modal__close" aria-label="Cerrar" (click)="cerrar()">×</button>
+  </div>
+
+  <div class="modal__body">
+    <div class="layout">
+      <aside class="side" [class.is-disabled]="creando || editando">
+        <div class="filters">
+          <input
+            class="input"
+            placeholder="Buscar por id o usuario…"
+            [(ngModel)]="filtroTexto"
+            (ngModelChange)="aplicarFiltros()"
+            [disabled]="creando || editando"
+          />
+
+          <p-dropdown
+            [options]="rolesOptions"
+            [(ngModel)]="filtroRol"
+            (onChange)="aplicarFiltros()"
+            appendTo="body"
+            styleClass="dropdown-estilizado"
+            [disabled]="creando || editando"
+          ></p-dropdown>
+        </div>
+
+        <div class="list" *ngIf="!loading; else loadingTpl">
+          <div
+            class="item"
+            *ngFor="let u of filtrados"
+            [class.item--sel]="seleccionado?.id === u.id"
+            (click)="!creando && !editando && seleccionar(u)"
+          >
+            <div class="item__row">
+              <div class="item__title">{{ u.username }}</div>
+              <span class="badge" [attr.data-role]="u.role">{{ u.role }}</span>
+            </div>
+            <div class="item__sub">ID: {{ u.id }}</div>
+          </div>
+
+          <div class="empty" *ngIf="!filtrados.length">Sin resultados.</div>
+        </div>
+
+        <ng-template #loadingTpl>
+          <div class="empty">Cargando…</div>
+        </ng-template>
+      </aside>
+
+      <!-- Panel: ver -->
+      <section class="detail" *ngIf="!creando && !editando && seleccionado">
+        <div class="form">
+          <label class="form__label">ID:</label>
+          <div class="form__field">
+            <input class="input input--sm" [value]="seleccionado.id" disabled />
+          </div>
+
+          <label class="form__label">Usuario:</label>
+          <div class="form__field">
+            <input class="input" [value]="seleccionado.username" disabled />
+          </div>
+
+          <label class="form__label">Rol:</label>
+          <div class="form__field">
+            <input class="input" [value]="seleccionado.role" disabled />
+            <div class="role-line">
+              <span class="badge" [attr.data-role]="seleccionado.role">{{ seleccionado.role }}</span>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Panel: crear -->
+      <section class="detail" *ngIf="creando">
+        <div class="form">
+          <label class="form__label">Usuario:</label>
+          <div class="form__field">
+            <input class="input" [(ngModel)]="nuevo.username" autocomplete="off" placeholder="ej. jlopez" />
+          </div>
+
+          <label class="form__label">Contraseña:</label>
+          <div class="form__field">
+            <div class="pass-row">
+              <input [type]="showPass ? 'text' : 'password'" class="input" [(ngModel)]="nuevo.pass" placeholder="Mínimo 6 caracteres" />
+              <button type="button" class="btn" (click)="showPass = !showPass">{{ showPass ? 'Ocultar' : 'Ver' }}</button>
+            </div>
+          </div>
+
+          <label class="form__label">Rol:</label>
+          <div class="form__field">
+            <p-dropdown
+              [options]="rolesOptions.slice(1)"
+              [(ngModel)]="nuevo.role"
+              optionLabel="label"
+              optionValue="value"
+              appendTo="body"
+              styleClass="dropdown-estilizado"
+            ></p-dropdown>
+          </div>
+        </div>
+
+        <div class="hint">
+          El usuario se crea habilitado. La contraseña se almacena encriptada (BCrypt).
+        </div>
+      </section>
+
+      <!-- Panel: editar -->
+      <section class="detail" *ngIf="editando && edit">
+        <div class="form">
+          <label class="form__label">ID:</label>
+          <div class="form__field">
+            <input class="input input--sm" [(ngModel)]="edit.id" disabled />
+          </div>
+
+          <label class="form__label">Usuario:</label>
+          <div class="form__field">
+            <input class="input" [(ngModel)]="edit.username" autocomplete="off" />
+          </div>
+
+          <label class="form__label">Rol:</label>
+          <div class="form__field">
+            <p-dropdown
+              [options]="rolesOptions.slice(1)"
+              [(ngModel)]="edit.role"
+              optionLabel="label"
+              optionValue="value"
+              appendTo="body"
+              styleClass="dropdown-estilizado"
+            ></p-dropdown>
+          </div>
+
+          <!-- NUEVO: contraseña opcional -->
+          <label class="form__label">Nueva contraseña:</label>
+          <div class="form__field">
+            <div class="pass-row">
+              <input [type]="showEditPass ? 'text' : 'password'" class="input"
+                    [(ngModel)]="editPass" placeholder="Dejar en blanco para no cambiar" />
+              <button type="button" class="btn" (click)="showEditPass = !showEditPass">
+                {{ showEditPass ? 'Ocultar' : 'Ver' }}
+              </button>
+            </div>
+            <small class="hint" *ngIf="editPass && editPass.length < 6">
+              Mínimo 6 caracteres.
+            </small>
+          </div>
+        </div>
+
+        <div class="hint">
+          Si dejas la contraseña vacía, no se modificará.
+        </div>
+      </section>
+
+      <!-- Mensaje si no hay selección -->
+      <section class="detail" *ngIf="!creando && !editando && !seleccionado && !loading">
+        <div class="empty">Selecciona un usuario para ver su detalle.</div>
+      </section>
+    </div>
+  </div>
+
+  <!-- pie de pagina: ver -->
+  <div class="modal__footer" *ngIf="!creando && !editando">
+    <div class="footer-left">
+      <button
+        class="btn btn--primary"
+        *ngIf="esAdmin"
+        (click)="abrirCrear()"
+      >
+        Nuevo usuario
+      </button>
+    </div>
+
+    <div class="footer-right">
+      <button
+        class="btn btn--danger"
+        *ngIf="esAdmin && seleccionado"
+        [disabled]="!puedeEliminar"
+        (click)="eliminarSeleccionado()"
+      >
+        Eliminar
+      </button>
+
+      <button
+        class="btn btn--warning"
+        *ngIf="esAdmin && seleccionado"
+        (click)="pedirClaveYEntrarEdicion()"
+      >
+        Editar
+      </button>
+
+      <button class="btn" (click)="cerrar()">Cerrar</button>
+    </div>
+  </div>
+
+  <!-- pie de pagina: crear -->
+  <div class="modal__footer" *ngIf="creando">
+    <div class="footer-left"></div>
+    <div class="footer-right">
+      <button class="btn" (click)="cancelarCrear()">Cancelar</button>
+      <button class="btn btn--primary" [disabled]="!puedeGuardarNuevo() || loading" (click)="guardarNuevo()">Guardar</button>
+    </div>
+  </div>
+
+  <!-- pie de pagina: editar -->
+  <div class="modal__footer" *ngIf="editando">
+    <div class="footer-left"></div>
+    <div class="footer-right">
+      <button class="btn" (click)="cancelarEdicion()">Cancelar</button>
+      <button class="btn btn--primary" [disabled]="!puedeGuardarEdicion() || loading" (click)="guardarEdicion()">Guardar</button>
+    </div>
+  </div>
+
+<!-- Confirmar edición -->
+<div class="confirm-backdrop" *ngIf="confirmEditOpen" (click)="closeConfirm()">
+  <div class="confirm" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+    <div class="confirm__header">
+      <h3>Confirmar edición</h3>
+      <button class="confirm__close" aria-label="Cerrar" (click)="closeConfirm()">×</button>
+    </div>
+
+    <div class="confirm__body">
+      <p>Para editar usuarios, confirma tu contraseña.</p>
+      <div class="confirm__input-row">
+        <input
+          [type]="confirmShowPass ? 'text' : 'password'"
+          class="input"
+          placeholder="Tu contraseña"
+          [(ngModel)]="confirmPass"
+          (keydown.enter)="confirmProceed()"
+          autofocus
+        />
+        <button type="button" class="btn btn--ghost" (click)="confirmShowPass = !confirmShowPass">
+          {{ confirmShowPass ? 'Ocultar' : 'Ver' }}
+        </button>
+      </div>
+    </div>
+
+    <div class="confirm__footer">
+      <button class="btn" (click)="closeConfirm()">Cancelar</button>
+      <button class="btn btn--primary" [disabled]="!confirmPass || confirmLoading" (click)="confirmProceed()">Continuar</button>
+    </div>
+  </div>
+</div>
+
+
+</div>
