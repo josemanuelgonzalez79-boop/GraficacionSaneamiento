@@ -33,8 +33,8 @@ public class WebSecurityConfig {
 
           // deja público el login
           .requestMatchers(
-              "/api/v1/recetPrebatch/validateLogin",
-              "/api/v1/recetPrebatch/**",
+              "/api/v1/sanitationGraphics/validateLogin",
+              "/api/v1/sanitationGraphics/**",
               "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
               "/error"
           ).permitAll()

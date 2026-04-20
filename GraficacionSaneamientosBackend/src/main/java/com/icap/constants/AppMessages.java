@@ -28,5 +28,7 @@ public class AppMessages {
     public static final String ALTAARTICULOS = "altaArticulos";
     public static final String BAJAARTICULOS = "bajaArticulos";
     public static final String CAMBIOARTICULOS = "cambioArticulos";
+    public static final String OBTENERPASOS = "getSteps";
+
 
 }

@@ -6,11 +6,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-public class FullComponentsDTO {
-    
-    private Integer id;
+public class PasoProcesoDTO {
+
+    private Integer step;
+    private Long duracionSegundos;
+    private String descripcion;
 
 }
