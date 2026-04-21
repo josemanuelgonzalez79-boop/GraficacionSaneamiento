@@ -1,16 +1,19 @@
 package com.icap.repositories;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
-import com.icap.entities.ComponentsFullEntity;
-import com.icap.entities.ObtenerPasosEntity;
+
+import com.icap.dto.CabeceraReporteDTO;
+import com.icap.dto.ObjectDTO;
+import com.icap.dto.RecipeDTO;
+import com.icap.dto.SanitationProcessDTO;
 import com.icap.entities.PasoRawEntity;
 import com.icap.entities.RegistroDatoEntity;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Repository
@@ -19,27 +22,34 @@ public class GraficacionSaneamientosRepository {
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
-    public ComponentsFullEntity fullComponentes(Integer id) {
+        public CabeceraReporteDTO obtenerCabecera(Integer id) {
+
         return jdbcTemplate.queryForObject(
             """
-                SELECT id, station, object_name, recipe_name, user_name, start_time, finish_time, water_accum, chemical_accum 
-                FROM cleaning_headers WHERE id = :id
+            SELECT id,
+                station,
+                object_name,
+                recipe_name,
+                user_name,
+                start_time,
+                finish_time,
+                water_accum,
+                chemical_accum
+            FROM cleaning_headers
+            WHERE id = :id
             """,
             Map.of("id", id),
-            (rs, rowNum) -> {
-
-                return new ComponentsFullEntity(
-                    rs.getInt("id"),
-                    rs.getInt("station"),
-                    rs.getString("object_name"),
-                    rs.getString("recipe_name"),
-                    rs.getString("user_name"),
-                    rs.getTimestamp("start_time"),
-                    rs.getTimestamp("finish_time"),
-                    rs.getDouble("water_accum"),
-                    rs.getDouble("chemical_accum")
-                );
-            }
+            (rs,rowNum) -> CabeceraReporteDTO.builder()
+                .processId(rs.getInt("id"))
+                .station(rs.getInt("station"))
+                .objectName(rs.getString("object_name"))
+                .recipeName(rs.getString("recipe_name"))
+                .userName(rs.getString("user_name"))
+                .startTime(rs.getTimestamp("start_time").toLocalDateTime())
+                .finishTime(rs.getTimestamp("finish_time").toLocalDateTime())
+                .waterAccum(rs.getObject("water_accum") != null ? ((Number) rs.getObject("water_accum")).floatValue() : null)
+                .chemicalAccum(rs.getObject("chemical_accum") != null ? ((Number) rs.getObject("chemical_accum")).floatValue() : null)
+                .build()
         );
     }
 
@@ -55,11 +65,38 @@ public class GraficacionSaneamientosRepository {
         return jdbcTemplate.query(
             query,
             Map.of("id", id),
-            (rs, rowNum) -> new PasoRawEntity(
+            (rs,rowNum) -> new PasoRawEntity(
                 rs.getInt("step"),
                 rs.getTimestamp("update_time")
             )
         );
+    }
+
+    public List<RegistroDatoEntity> obtenerDatosCrudos(Integer id, String tabla) {
+        String query = """
+            SELECT update_time, sp_temp, return_temp, supply_temp,
+                sp_cond, return_cond, sp_flow, supply_flow
+            FROM %s WHERE id = :id ORDER BY update_time
+        """.formatted(tabla);
+
+        return jdbcTemplate.query(
+            query,
+            Map.of("id", id),
+            (rs, rowNum) -> new RegistroDatoEntity(
+                rs.getTimestamp("update_time"),
+                asDouble(rs.getObject("sp_temp")),
+                asDouble(rs.getObject("return_temp")),
+                asDouble(rs.getObject("supply_temp")),
+                asDouble(rs.getObject("sp_cond")),
+                asDouble(rs.getObject("return_cond")),
+                asDouble(rs.getObject("sp_flow")),
+                asDouble(rs.getObject("supply_flow"))
+            )
+        );
+    }
+
+    private Double asDouble(Object value) {
+        return (value instanceof Number n) ? n.doubleValue() : null;
     }
 
     public Map<Integer,String> obtenerDescripciones() {
@@ -84,73 +121,90 @@ public class GraficacionSaneamientosRepository {
         return result;
     }
 
-    public List<RegistroDatoEntity> obtenerDatosCrudos(Integer id, String tabla) {
+    public List<SanitationProcessDTO> obtenerProcesos(
+        LocalDate startDate,
+        LocalDate endDate,
+        Integer station,
+        String objectName,
+        String recipeName) {
+
+        StringBuilder sql = new StringBuilder("""
+            SELECT start_time,
+                id,
+                station,
+                object_name,
+                recipe_name,
+                user_name
+            FROM cleaning_headers
+            WHERE start_time <= :endDate
+            AND finish_time >= :startDate
+        """);
+
+        Map<String,Object> params = new HashMap<>();
+
+        params.put("startDate", startDate.atStartOfDay());
+        params.put("endDate", endDate.plusDays(1).atStartOfDay());
+
+        if(station != null){
+            sql.append(" AND station = :station");
+            params.put("station", station);
+        }
+
+        if(objectName != null){
+            sql.append(" AND object_name = :objectName");
+            params.put("objectName", objectName);
+        }
+
+        if(recipeName != null){
+            sql.append(" AND recipe_name = :recipeName");
+            params.put("recipeName", recipeName);
+        }
+
+        return jdbcTemplate.query(
+            sql.toString(),
+            params,
+            (rs,rowNum) -> SanitationProcessDTO.builder()
+                .id(rs.getInt("id"))
+                .station(rs.getInt("station"))
+                .objectName(rs.getString("object_name"))
+                .recipeName(rs.getString("recipe_name"))
+                .userName(rs.getString("user_name"))
+                .startTime(rs.getTimestamp("start_time").toLocalDateTime())
+                .build()
+        );
+    }
+
+    public List<RecipeDTO> obtenerRecetas() {
 
         String query = """
-            SELECT update_time,
-                sp_temp,
-                return_temp,
-                supply_temp,
-                sp_cond,
-                return_cond,
-                sp_flow,
-                supply_flow
-            FROM %s
-            WHERE id = :id
-            ORDER BY update_time
-        """.formatted(tabla);
+            SELECT recipe_name
+            FROM cleaning_recipes
+            ORDER BY recipe_name DESC
+        """;
 
         return jdbcTemplate.query(
             query,
-            Map.of("id", id),
-            (rs,rowNum) -> new RegistroDatoEntity(
-                rs.getTimestamp("update_time"),
-
-                (Double) rs.getObject("sp_temp"),
-                (Double) rs.getObject("return_temp"),
-                (Double) rs.getObject("supply_temp"),
-
-                (Double) rs.getObject("sp_cond"),
-                (Double) rs.getObject("return_cond"),
-
-                (Double) rs.getObject("sp_flow"),
-                (Double) rs.getObject("supply_flow")
-            )
+            Map.of(),
+            (rs,rowNum) -> RecipeDTO.builder()
+                .recipeName(rs.getString("recipe_name"))
+                .build()
         );
     }
 
-    @Transactional
-    public void eliminar(String id){
+    public List<ObjectDTO> obtenerObjetos() {
 
-        jdbcTemplate.update(
-            """
-                UPDATE pb_components SET obsolete = true WHERE component_id = :id
-            """,
-             Map.of("id",id)
-        );
-    }
+        String query = """
+            SELECT object_name
+            FROM cleaning_objects
+            ORDER BY object_name DESC
+        """;
 
-    @Transactional
-    public void createComponent(String id, String name, String reference, Integer type){
-
-        jdbcTemplate.update(
-            """
-                INSERT INTO pb_components (component_id, name, recipe_reference, type) VALUES (:id, :name, :reference, :type)
-            """,
-             Map.of("id",id,"name",name,"reference",reference,"type",type)
-        );
-    }
-
-    @Transactional
-    public void actualizaComponenteExistente(String id){
-
-        jdbcTemplate.update(
-            """
-                UPDATE pb_components SET obsolete = false WHERE component_id = :id
-                AND version = (SELECT MAX(version)FROM pb_components
-                WHERE component_id = :id);
-            """,
-            Map.of("id",id)
+        return jdbcTemplate.query(
+            query,
+            Map.of(),
+            (rs,rowNum) -> ObjectDTO.builder()
+                .objectName(rs.getString("object_name"))
+                .build()
         );
     }
 

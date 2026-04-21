@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ActualizaCompExistenteDTO {
-    
-    private String id;
+public class RecipeDTO {
+
+    private String recipeName;
 
 }

@@ -9,11 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CreaComponenteDTO {
-    
-    private String id;
-    private String name;
-    private String reference;
-    private Integer type;
+public class ObjectDTO {
+
+    private String objectName;
 
 }
