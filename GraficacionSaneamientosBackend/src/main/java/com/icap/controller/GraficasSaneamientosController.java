@@ -25,7 +25,6 @@ public class GraficasSaneamientosController {
         private final GraficasSaneamientosService graficasSaneamientosService;
         private final ObjectMapper mapper;
 
-
     @PostMapping("sanitationReport")
     public ApiResponseDTO getSanitationReport(@RequestBody ObtenerPasosDTO data, HttpServletResponse response) {
 
