@@ -26,7 +26,7 @@ public class GraficacionSaneamientosRepository {
 
         return jdbcTemplate.queryForObject(
             """
-            SELECT id,
+            SELECT process_id,
                 station,
                 object_name,
                 recipe_name,
@@ -36,11 +36,11 @@ public class GraficacionSaneamientosRepository {
                 water_accum,
                 chemical_accum
             FROM cleaning_headers
-            WHERE id = :id
+            WHERE process_id = :id
             """,
             Map.of("id", id),
             (rs,rowNum) -> CabeceraReporteDTO.builder()
-                .processId(rs.getInt("id"))
+                .processId(rs.getInt("process_id"))
                 .station(rs.getInt("station"))
                 .objectName(rs.getString("object_name"))
                 .recipeName(rs.getString("recipe_name"))
@@ -130,7 +130,7 @@ public class GraficacionSaneamientosRepository {
 
         StringBuilder sql = new StringBuilder("""
             SELECT start_time,
-                id,
+                process_id,
                 station,
                 object_name,
                 recipe_name,
@@ -164,7 +164,7 @@ public class GraficacionSaneamientosRepository {
             sql.toString(),
             params,
             (rs,rowNum) -> SanitationProcessDTO.builder()
-                .id(rs.getInt("id"))
+                .id(rs.getInt("process_id"))
                 .station(rs.getInt("station"))
                 .objectName(rs.getString("object_name"))
                 .recipeName(rs.getString("recipe_name"))

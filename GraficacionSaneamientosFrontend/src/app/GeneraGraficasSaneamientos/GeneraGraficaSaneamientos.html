@@ -1,1 +1,115 @@
-<p>nombre-del-componente works!</p>
+<div class="saneamientos-page">
+  <div class="tabla-wrapper">
+    <p-table
+      [value]="registros"
+      dataKey="id"
+      selectionMode="single"
+      [(selection)]="registroSeleccionado"
+      [scrollable]="true"
+      scrollHeight="calc(100vh - 110px)"
+      styleClass="tabla-saneamientos">
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th
+            [ngClass]="{ 'columna-activa': columnaActiva === 'fecha' }"
+            (click)="seleccionarColumna('fecha')">
+            Fecha
+          </th>
+          <th
+            [ngClass]="{ 'columna-activa': columnaActiva === 'folio' }"
+            (click)="seleccionarColumna('folio')">
+            Folio
+          </th>
+          <th
+            [ngClass]="{ 'columna-activa': columnaActiva === 'estacion' }"
+            (click)="seleccionarColumna('estacion')">
+            Estacion
+          </th>
+          <th
+            [ngClass]="{ 'columna-activa': columnaActiva === 'circuito' }"
+            (click)="seleccionarColumna('circuito')">
+            Circuito
+          </th>
+          <th
+            [ngClass]="{ 'columna-activa': columnaActiva === 'receta' }"
+            (click)="seleccionarColumna('receta')">
+            Receta
+          </th>
+          <th
+            [ngClass]="{ 'columna-activa': columnaActiva === 'usuario' }"
+            (click)="seleccionarColumna('usuario')">
+            Usuario
+          </th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-registro>
+        <tr [pSelectableRow]="registro">
+          <td>{{ registro.fecha }}</td>
+          <td>{{ registro.folio }}</td>
+          <td>{{ registro.estacion }}</td>
+          <td>{{ registro.circuito }}</td>
+          <td>{{ registro.receta }}</td>
+          <td>{{ registro.usuario }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <div class="panel-filtros">
+    <div class="campo">
+      <label>Fecha Inicio</label>
+      <p-calendar
+        [(ngModel)]="fechaInicio"
+        dateFormat="dd/mm/yy"
+        [showIcon]="true"
+        iconDisplay="input">
+      </p-calendar>
+    </div>
+
+    <div class="campo">
+      <label>Fecha Fin</label>
+      <p-calendar
+        [(ngModel)]="fechaFin"
+        dateFormat="dd/mm/yy"
+        [showIcon]="true"
+        iconDisplay="input">
+      </p-calendar>
+    </div>
+
+    <div class="campo">
+      <label>Estacion</label>
+      <p-dropdown
+        [options]="estaciones"
+        [(ngModel)]="estacionSeleccionada"
+        optionLabel="label"
+        optionValue="value">
+      </p-dropdown>
+    </div>
+
+    <div class="campo">
+      <label>Objeto</label>
+      <p-dropdown
+        [options]="objetos"
+        [(ngModel)]="objetoSeleccionado"
+        optionLabel="label"
+        optionValue="value">
+      </p-dropdown>
+    </div>
+
+    <div class="campo">
+      <label>Receta</label>
+      <p-dropdown
+        [options]="recetas"
+        [(ngModel)]="recetaSeleccionada"
+        optionLabel="label"
+        optionValue="value">
+      </p-dropdown>
+    </div>
+
+    <button pButton type="button" label="Cargar" (click)="cargar()" [disabled]="!fechaInicio || !fechaFin || estacionSeleccionada == null"></button>
+    <button pButton type="button" label="Generar Reporte" (click)="generarReporte()"></button>
+    <button pButton type="button" label="Cancelar" (click)="cancelar()"></button>
+  </div>
+</div>

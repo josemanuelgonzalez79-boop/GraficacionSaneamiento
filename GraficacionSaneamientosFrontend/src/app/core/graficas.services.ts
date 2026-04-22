@@ -10,7 +10,7 @@ import { enviroment } from '../../enviroments/enviroment'
 
 export class GraficasService {
 
-    private graficasUrl = `${enviroment.apiUrl}/api/v1/recetPrebatch/`;
+    private graficasUrl = `${enviroment.apiUrl}/api/v1/sanitationGraphics/`;
 
     constructor(private http: HttpClient) {}
 
