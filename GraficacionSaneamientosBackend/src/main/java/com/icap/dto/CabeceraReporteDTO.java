@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Builder
 public class CabeceraReporteDTO {
 
-    private Integer processId;
+    private Integer id;
     private Integer station;
 
     private String objectName;

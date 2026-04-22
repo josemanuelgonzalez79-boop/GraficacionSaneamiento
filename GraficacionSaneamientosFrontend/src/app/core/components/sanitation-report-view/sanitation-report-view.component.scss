@@ -1,0 +1,76 @@
+.report-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+}
+
+.report-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  background: #1f2d3d;
+  color: white;
+}
+
+.report-content {
+  padding: 20px 40px;
+}
+
+.barra-pasos {
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.paso {
+  background: #007ad9;
+  color: white;
+  padding: 5px 10px;
+  margin-right: 5px;
+}
+
+.barra-pasos {
+  display: flex;
+  width: 100%;
+  height: 40px;
+  margin: 20px 0;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #e0e0e0;
+}
+
+.paso {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: white;
+  font-weight: bold;
+  border-right: 2px solid #fff;
+  background: linear-gradient(135deg, #007ad9, #005fa3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cabecera {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.grafica {
+  margin-bottom: 30px;
+}
+
+p-chart {
+  display: block;
+  width: 100%;
+  height: 300px;
+}

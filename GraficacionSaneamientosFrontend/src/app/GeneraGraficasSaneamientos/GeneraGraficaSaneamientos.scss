@@ -1,6 +1,6 @@
 .saneamientos-page {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 340px;
+  grid-template-columns: minmax(0, 1fr) 320px;
   gap: 20px;
   padding: 14px;
   height: 100vh;
@@ -20,8 +20,7 @@
 .panel-filtros {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  padding: 4px 0;
+  gap: 12px;
 }
 
 .campo {
@@ -32,32 +31,13 @@
 
 .campo label {
   text-align: center;
-  font-size: 0.95rem;
   font-weight: 700;
-  color: #000;
-}
-
-:host ::ng-deep .p-calendar,
-:host ::ng-deep .p-dropdown,
-:host ::ng-deep .p-button {
-  width: 100%;
-}
-
-:host ::ng-deep .p-inputtext,
-:host ::ng-deep .p-dropdown {
-  height: 2.9rem;
-  font-size: 0.95rem;
 }
 
 :host ::ng-deep .p-button {
-  height: 2.9rem;
-  font-size: 0.95rem;
+  height: 2.7rem;
   font-weight: 700;
   border-radius: 8px;
-}
-
-:host ::ng-deep .tabla-saneamientos {
-  height: 100%;
 }
 
 :host ::ng-deep .tabla-saneamientos .p-datatable-wrapper {
@@ -65,56 +45,28 @@
   background: #fff;
 }
 
-:host ::ng-deep .tabla-saneamientos table {
-  border-collapse: collapse;
-}
-
-:host ::ng-deep .tabla-saneamientos .p-datatable-thead > tr > th {
+:host ::ng-deep .tabla-saneamientos th {
   background: #f4f4f4;
-  color: #000;
-  font-weight: 400;
   border: 1px solid #9e9e9e;
-  padding: 6px 8px;
-  text-align: left;
-  cursor: pointer;
 }
 
-:host ::ng-deep .tabla-saneamientos .p-datatable-thead > tr > th.columna-activa {
-  background: #c7dff2 !important;
-}
-
-:host ::ng-deep .tabla-saneamientos .p-datatable-tbody > tr > td {
-  background: #fff;
-  color: #000;
+:host ::ng-deep .tabla-saneamientos td {
   border: 1px solid #b1b1b1;
-  padding: 6px 8px;
-  text-align: left;
 }
 
-:host ::ng-deep .tabla-saneamientos .p-datatable-tbody > tr {
-  cursor: pointer;
-}
-
-:host ::ng-deep .tabla-saneamientos .p-datatable-tbody > tr:hover > td {
-  background: #eef6ff;
-}
-
-:host ::ng-deep .tabla-saneamientos .p-datatable-tbody > tr.p-highlight > td {
+:host ::ng-deep .tabla-saneamientos .p-highlight td {
   background: #0078d7 !important;
-  color: #fff !important;
+  color: white !important;
 }
 
-:host ::ng-deep .tabla-saneamientos .p-datatable-tbody > tr.p-highlight:hover > td {
-  background: #0078d7 !important;
-  color: #fff !important;
-}
-
-:host ::ng-deep .tabla-saneamientos .p-datatable-scrollable-body {
-  overflow-y: auto !important;
-  overflow-x: auto !important;
-}
-
-:host ::ng-deep .p-calendar .p-inputtext,
+:host ::ng-deep .p-calendar,
 :host ::ng-deep .p-dropdown {
-  border-radius: 8px;
+  width: 100%;
 }
+
+@media (max-width: 900px) {
+  .saneamientos-page {
+    grid-template-columns: 1fr;
+  }
+}
+

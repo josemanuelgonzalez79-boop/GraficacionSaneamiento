@@ -6,9 +6,11 @@ import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
 import { CalendarModule } from 'primeng/calendar';
 import { GraficasService } from '../core/graficas.services';
+import { ChartModule } from 'primeng/chart';
+import { SanitationReportView } from '../core/components/sanitation-report-view/sanitation-report-view.component';
 
 @Component({
-  selector: 'app-genera-grafica-saneamientos',
+  selector: 'app-genera-graficas-saneamientos',
   standalone: true,
   imports: [
     CommonModule,
@@ -16,7 +18,8 @@ import { GraficasService } from '../core/graficas.services';
     TableModule,
     ButtonModule,
     DropdownModule,
-    CalendarModule
+    CalendarModule,
+    SanitationReportView
   ],
   templateUrl: './GeneraGraficaSaneamientos.html',
   styleUrls: ['./GeneraGraficaSaneamientos.scss']
@@ -41,10 +44,20 @@ export class GeneraGraficaSaneamientos implements OnInit {
   estacionSeleccionada: number = 1;
   objetoSeleccionado: string | null = null;
   recetaSeleccionada: string | null = null;
+  mostrarReporte = false;
 
   columnaActiva: string | null = null;
   registroSeleccionado: any = null;
+  reporte: any = null;
+  steps: any[] = [];
+  rawData: any[] = [];
 
+  temperaturaData: any[] = [];
+  concentracionData: any[] = [];
+  flujoData: any[] = [];
+  chartTemperatura: any;
+  chartConcentracion: any;
+  chartFlujo: any;
   registros: any[] = [];
 
   constructor(private graficasService: GraficasService) {}
@@ -143,14 +156,15 @@ export class GeneraGraficaSaneamientos implements OnInit {
           Array.isArray(resp.data?.procesos) ? resp.data.procesos :
           [];
 
-        this.registros = lista.map((item: any) => ({
-          fecha: this.formatearFechaTabla(item.startTime),
-          folio: item.id,
-          estacion: item.station,
-          circuito: item.objectName,
-          receta: item.recipeName,
-          usuario: item.userName
-        }));
+      this.registros = lista.map((item: any) => ({
+        id: item.id,
+        fecha: this.formatearFechaTabla(item.startTime),
+        folio: item.id,
+        estacion: item.station,
+        circuito: item.objectName,
+        receta: item.recipeName,
+        usuario: item.userName
+      }));
         console.log('Registros finales:', this.registros);
       },
       error: (err) => {
@@ -167,12 +181,96 @@ export class GeneraGraficaSaneamientos implements OnInit {
 
     this.graficasService.SanitationReport(this.registroSeleccionado.id).subscribe({
       next: (resp) => {
-        console.log('Reporte:', resp);
-      },
-      error: (err) => {
-        console.error('Error al generar reporte', err);
+
+        const data = resp.data;
+
+        this.reporte = data;
+        this.steps = data.steps ?? [];
+        this.rawData = data.rawData ?? [];
+
+        this.procesarGraficas();
+
+        this.mostrarReporte = true;
+
       }
     });
+  }
+
+  private procesarGraficas(): void {
+
+    if (!this.rawData || this.rawData.length === 0) {
+      console.warn("No hay datos para graficar");
+      return;
+    }
+
+    const labels = this.rawData.map((d: any) =>
+      new Date(d.tiempo).toLocaleTimeString()
+    );
+
+    // TEMPERATURA
+    this.chartTemperatura = {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Meta',
+          data: this.rawData.map((d: any) => d.spTemp),
+          borderColor: 'black',
+          fill: false
+        },
+        {
+          label: 'Retorno',
+          data: this.rawData.map((d: any) => d.returnTemp),
+          borderColor: 'green',
+          fill: false
+        },
+        {
+          label: 'Suministro',
+          data: this.rawData.map((d: any) => d.supplyTemp),
+          borderColor: 'red',
+          fill: false
+        }
+      ]
+    };
+
+    // CONCENTRACIÓN
+    this.chartConcentracion = {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Meta',
+          data: this.rawData.map((d: any) => d.spCond),
+          borderColor: 'black',
+          fill: false
+        },
+        {
+          label: 'Retorno',
+          data: this.rawData.map((d: any) => d.returnCond),
+          borderColor: 'blue',
+          fill: false
+        }
+      ]
+    };
+
+    // FLUJO
+    this.chartFlujo = {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Meta',
+          data: this.rawData.map((d: any) => d.spFlow),
+          borderColor: 'black',
+          fill: false
+        },
+        {
+          label: 'Suministro',
+          data: this.rawData.map((d: any) => d.supplyFlow),
+          borderColor: 'purple',
+          fill: false
+        }
+      ]
+    };
+
+    console.log("Gráficas listas");
   }
 
   cancelar(): void {

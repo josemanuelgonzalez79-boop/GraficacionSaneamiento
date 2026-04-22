@@ -3,7 +3,9 @@ import org.springframework.stereotype.Service;
 import com.icap.dto.ApiResponseDTO;
 import com.icap.dto.CabeceraReporteDTO;
 import com.icap.dto.ObjectDTO;
+import com.icap.dto.PasoProcesoDTO;
 import com.icap.dto.RecipeDTO;
+import com.icap.dto.RegistroDatoDTO;
 import com.icap.dto.SanitationProcessDTO;
 import com.icap.dto.SanitationProcessFilterDTO;
 import com.icap.dto.SanitationReportDTO;
@@ -19,7 +21,13 @@ import static com.icap.constants.Estado.INICIA_TRANSACCION;
 import static com.icap.constants.MetaConstanst.META_ERROR;
 import static com.icap.constants.MetaConstanst.META_OK;
 
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
+
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -59,12 +67,61 @@ public class GraficasSaneamientosServiceImpl implements GraficasSaneamientosServ
             List<RegistroDatoEntity> rawData =
                     saneamientosRepository.obtenerDatosCrudos(id, tabla);
 
-            // aquí luego conviertes pasosRaw → PasoProcesoDTO (como ya hicimos antes)
+            List<RegistroDatoDTO> rawDataDTO = rawData.stream()
+                .map((RegistroDatoEntity d) -> RegistroDatoDTO.builder()
+                    .tiempo(d.getTiempo().toLocalDateTime())
+                    .spTemp(d.getSpTemp())
+                    .returnTemp(d.getReturnTemp())
+                    .supplyTemp(d.getSupplyTemp())
+                    .spCond(d.getSpCond())
+                    .returnCond(d.getReturnCond())
+                    .spFlow(d.getSpFlow())
+                    .supplyFlow(d.getSupplyFlow())
+                    .build())
+                .toList();
+
+            // Agrupar tiempos por step
+            Map<Integer, List<Timestamp>> tiemposPorPaso = new HashMap<>();
+
+            for (PasoRawEntity row : pasosRaw) {
+                tiemposPorPaso
+                    .computeIfAbsent(row.getStep(), k -> new ArrayList<>())
+                    .add(row.getUpdateTime());
+            }
+
+            // Obtener descripciones
+            Map<Integer, String> descripciones =
+                    saneamientosRepository.obtenerDescripciones();
+
+            // Construir pasos finales
+            List<PasoProcesoDTO> steps = new ArrayList<>();
+
+            int pasoSecuencial = 1;
+
+            for (Integer step : new TreeSet<>(tiemposPorPaso.keySet())) {
+
+                List<Timestamp> tiempos = tiemposPorPaso.get(step);
+
+                Timestamp inicio = tiempos.get(0);
+                Timestamp fin = tiempos.get(tiempos.size() - 1);
+
+                long duracionSegundos = (fin.getTime() - inicio.getTime()) / 1000;
+
+                steps.add(
+                    PasoProcesoDTO.builder()
+                        .step(pasoSecuencial++)
+                        .duracionSegundos(duracionSegundos)
+                        .descripcion(
+                            descripciones.getOrDefault(step, "-")
+                        )
+                        .build()
+                );
+            }
 
             SanitationReportDTO report = SanitationReportDTO.builder()
                     .header(header)
-                    .steps(null)   // aquí pondrás los pasos procesados
-                    .rawData(null) // aquí pondrás rawData convertido a DTO
+                    .steps(steps)
+                    .rawData(rawDataDTO)
                     .build();
 
             log.grabar(FINALIZA_TRANSACCION, "OBTENER_REPORTE", "");

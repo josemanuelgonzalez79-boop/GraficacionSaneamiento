@@ -1,0 +1,63 @@
+<div class="report-overlay" *ngIf="visible">
+
+  <!-- HEADER -->
+  <div class="report-header">
+    <h2>Reporte de Saneamiento</h2>
+
+    <div class="acciones">
+      <button pButton label="Exportar PDF" (click)="exportarPDF()"></button>
+      <button pButton icon="pi pi-times" class="p-button-danger" (click)="cerrar()"></button>
+    </div>
+  </div>
+
+  <div class="report-content" #reportePDF>
+
+    <div class="cabecera">
+        {{ steps | json }}
+        <div><b>Proceso:</b> {{ header?.id }}</div>
+        <div><b>Receta:</b> {{ header?.recipeName }}</div>
+        <div><b>Objeto:</b> {{ header?.objectName }}</div>
+        <div><b>Usuario:</b> {{ header?.userName }}</div>
+    </div>
+
+    <!-- BARRA DE PASOS PROPORCIONAL -->
+    <div class="barra-pasos">
+    <div
+        *ngFor="let paso of getPasosNormalizados()"
+        class="paso"
+        [style.flex]="paso.proporcion">
+        {{ paso.descripcion }}
+    </div>
+    </div>
+
+    <!-- GRÁFICAS -->
+
+    <div class="grafica">
+      <h3>Temperatura</h3>
+      <p-chart
+        type="line"
+        [data]="chartTemperatura"
+        [style]="{ height: '300px' }">
+      </p-chart>
+    </div>
+
+    <div class="grafica">
+      <h3>Concentración</h3>
+      <p-chart
+        type="line"
+        [data]="chartConcentracion"
+        [style]="{ height: '300px' }">
+      </p-chart>
+    </div>
+
+    <div class="grafica">
+      <h3>Flujo</h3>
+      <p-chart
+        type="line"
+        [data]="chartFlujo"
+        [style]="{ height: '300px' }">
+      </p-chart>
+    </div>
+
+  </div>
+</div>
