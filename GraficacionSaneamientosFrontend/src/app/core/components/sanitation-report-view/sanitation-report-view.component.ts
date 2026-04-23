@@ -9,10 +9,10 @@ import { CommonModule } from '@angular/common';
   selector: 'app-sanitation-report-view',
   standalone: true,
   imports: [CommonModule, ChartModule, ButtonModule],
-  templateUrl: './sanitation-report-view.component.html'
+  templateUrl: './sanitation-report-view.component.html',
+  styleUrl: './sanitation-report-view.component.scss'
 })
 export class SanitationReportView {
-
   @Input() visible = false;
   @Input() header: any;
   @Input() steps: any[] = [];
@@ -28,30 +28,60 @@ export class SanitationReportView {
   }
 
   exportarPDF() {
-
     const element = this.reportePDF.nativeElement;
 
-    html2canvas(element).then(canvas => {
-
+    html2canvas(element, {
+      scale: 2,
+      backgroundColor: '#ffffff',
+      useCORS: true
+    }).then(canvas => {
       const imgData = canvas.toDataURL('image/png');
-
       const pdf = new jsPDF('l', 'mm', 'a4');
 
-      pdf.addImage(imgData, 'PNG', 10, 10, 280, 180);
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+
+      const imgWidth = pageWidth - 20;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      if (imgHeight <= pageHeight - 20) {
+        pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+      } else {
+        let heightLeft = imgHeight;
+        let position = 10;
+
+        pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight - 20;
+
+        while (heightLeft > 0) {
+          position = heightLeft - imgHeight + 10;
+          pdf.addPage();
+          pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+          heightLeft -= pageHeight - 20;
+        }
+      }
 
       pdf.save('reporte-saneamiento.pdf');
-
     });
   }
 
-    getPasosNormalizados() {
-      if (!this.steps || this.steps.length === 0) return [];
+  getPasosNormalizados() {
+    if (!this.steps || this.steps.length === 0) return [];
 
-      const total = this.steps.reduce((sum, p) => sum + p.duracionSegundos, 0);
+    const total = this.steps.reduce((sum, p) => sum + (p.duracionSegundos || 0), 0);
 
-      return this.steps.map(p => ({
-        ...p,
-        proporcion: total ? p.duracionSegundos / total : 1
-      }));
-    }
+    return this.steps.map(p => ({
+      ...p,
+      proporcion: total ? (p.duracionSegundos || 0) / total : 1
+    }));
+  }
+
+  formatearDuracion(segundos: number): string {
+    if (segundos === null || segundos === undefined) return '';
+
+    const min = Math.floor(segundos / 60);
+    const sec = segundos % 60;
+
+    return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+  }
 }
