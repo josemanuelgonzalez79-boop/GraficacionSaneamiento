@@ -6,14 +6,11 @@
   height: 100vh;
   box-sizing: border-box;
   overflow: hidden;
-  background: #f3f3f3;
+  background: #fff;
 }
 
 .tabla-wrapper {
-  background: #d0d0d0;
-  border: 1px solid #9a9a9a;
-  padding: 8px;
-  min-width: 0;
+  height: 100%;
   overflow: hidden;
 }
 
@@ -40,9 +37,26 @@
   border-radius: 8px;
 }
 
-:host ::ng-deep .tabla-saneamientos .p-datatable-wrapper {
-  border: 1px solid #8f8f8f;
-  background: #fff;
+:host ::ng-deep .btn-excel {
+  background-color: #4caf50 !important;
+  border-color: #4caf50 !important;
+  color: white !important;
+}
+
+:host ::ng-deep .btn-excel:hover:not(:disabled) {
+  background-color: #45a049 !important;
+  border-color: #45a049 !important;
+}
+
+:host ::ng-deep .btn-excel:disabled {
+  background-color: #cccccc !important;
+  border-color: #cccccc !important;
+  color: #666666 !important;
+  cursor: not-allowed !important;
+}
+
+:host ::ng-deep .tabla-saneamientos {
+  height: 100%;
 }
 
 :host ::ng-deep .tabla-saneamientos th {

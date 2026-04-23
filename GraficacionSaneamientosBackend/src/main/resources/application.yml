@@ -19,7 +19,7 @@ management:
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5433/Process
+    url: jdbc:postgresql://localhost:5432/Process
     username: postgres
     password: 123
     hikari:

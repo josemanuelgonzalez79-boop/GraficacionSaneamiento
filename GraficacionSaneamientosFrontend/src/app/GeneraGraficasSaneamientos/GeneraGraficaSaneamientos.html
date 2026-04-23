@@ -1,6 +1,6 @@
 <div class="saneamientos-page">
 
-  <!--  TABLA  -->
+  <!-- TABLA -->
   <div class="tabla-wrapper">
     <p-table
       [value]="registros"
@@ -8,20 +8,47 @@
       selectionMode="single"
       [(selection)]="registroSeleccionado"
       [scrollable]="true"
-      scrollHeight="calc(100vh - 110px)"
-      styleClass="tabla-saneamientos">
+      scrollHeight="calc(100vh - 120px)"
+      styleClass="tabla-saneamientos"
+      sortMode="single"
+    >
 
+      <!-- HEADER -->
       <ng-template pTemplate="header">
         <tr>
-          <th (click)="seleccionarColumna('fecha')">Fecha</th>
-          <th (click)="seleccionarColumna('folio')">Folio</th>
-          <th (click)="seleccionarColumna('estacion')">Estacion</th>
-          <th (click)="seleccionarColumna('circuito')">Circuito</th>
-          <th (click)="seleccionarColumna('receta')">Receta</th>
-          <th (click)="seleccionarColumna('usuario')">Usuario</th>
+          <th pSortableColumn="fechaRaw">
+            Fecha
+            <p-sortIcon field="fechaRaw"></p-sortIcon>
+          </th>
+
+          <th pSortableColumn="folio">
+            Folio
+            <p-sortIcon field="folio"></p-sortIcon>
+          </th>
+
+          <th pSortableColumn="estacion">
+            Estación
+            <p-sortIcon field="estacion"></p-sortIcon>
+          </th>
+
+          <th pSortableColumn="circuito">
+            Circuito
+            <p-sortIcon field="circuito"></p-sortIcon>
+          </th>
+
+          <th pSortableColumn="receta">
+            Receta
+            <p-sortIcon field="receta"></p-sortIcon>
+          </th>
+
+          <th pSortableColumn="usuario">
+            Usuario
+            <p-sortIcon field="usuario"></p-sortIcon>
+          </th>
         </tr>
       </ng-template>
 
+      <!-- BODY -->
       <ng-template pTemplate="body" let-registro>
         <tr [pSelectableRow]="registro">
           <td>{{ registro.fecha }}</td>
@@ -36,7 +63,7 @@
     </p-table>
   </div>
 
-  <!-- FILTROS  -->
+  <!-- FILTROS -->
   <div class="panel-filtros">
 
     <div class="campo">
@@ -50,23 +77,37 @@
     </div>
 
     <div class="campo">
-      <label>Estacion</label>
-      <p-dropdown [options]="estaciones" [(ngModel)]="estacionSeleccionada"></p-dropdown>
+      <label>Estación</label>
+        <p-dropdown 
+          [options]="estaciones"
+          [(ngModel)]="estacionSeleccionada"
+          placeholder="Selecciona estación">
+        </p-dropdown>
     </div>
 
     <div class="campo">
       <label>Objeto</label>
-      <p-dropdown [options]="objetos" [(ngModel)]="objetoSeleccionado"></p-dropdown>
+      <p-dropdown [options]="objetos" [(ngModel)]="objetoSeleccionado" placeholder="Selecciona objeto"></p-dropdown>
     </div>
 
     <div class="campo">
       <label>Receta</label>
-      <p-dropdown [options]="recetas" [(ngModel)]="recetaSeleccionada"></p-dropdown>
+      <p-dropdown [options]="recetas" [(ngModel)]="recetaSeleccionada" placeholder="Selecciona receta"></p-dropdown>
     </div>
 
     <button pButton label="Cargar" (click)="cargar()"></button>
+
     <button pButton label="Generar Reporte" (click)="generarReporte()"></button>
-    <button pButton label="Cancelar"></button>
+
+    <button 
+      pButton 
+      label="Generar Excel" 
+      (click)="exportarExcel()"
+      [disabled]="registros.length <= 1"
+      class="btn-excel">
+    </button>
+
+    <button pButton label="Cancelar" (click)="cancelar()"></button>
 
   </div>
 

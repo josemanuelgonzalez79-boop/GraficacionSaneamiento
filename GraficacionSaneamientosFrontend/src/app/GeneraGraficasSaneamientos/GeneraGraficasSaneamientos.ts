@@ -8,6 +8,7 @@ import { CalendarModule } from 'primeng/calendar';
 import { GraficasService } from '../core/graficas.services';
 import { ChartModule } from 'primeng/chart';
 import { SanitationReportView } from '../core/components/sanitation-report-view/sanitation-report-view.component';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-genera-graficas-saneamientos',
@@ -29,6 +30,7 @@ export class GeneraGraficaSaneamientos implements OnInit {
   fechaFin: Date = new Date();
 
   estaciones = [
+    { label: 'Todas', value: null },
     { label: '1', value: 1 },
     { label: '2', value: 2 }
   ];
@@ -41,12 +43,11 @@ export class GeneraGraficaSaneamientos implements OnInit {
     { label: 'Todas', value: null }
   ];
 
-  estacionSeleccionada: number = 1;
+  estacionSeleccionada: number | null = null;
   objetoSeleccionado: string | null = null;
   recetaSeleccionada: string | null = null;
   mostrarReporte = false;
 
-  columnaActiva: string | null = null;
   registroSeleccionado: any = null;
   reporte: any = null;
   steps: any[] = [];
@@ -65,10 +66,6 @@ export class GeneraGraficaSaneamientos implements OnInit {
   ngOnInit(): void {
     this.cargarObjetos();
     this.cargarRecetas();
-  }
-
-  seleccionarColumna(columna: string): void {
-    this.columnaActiva = this.columnaActiva === columna ? null : columna;
   }
 
   cargarObjetos(): void {
@@ -122,7 +119,7 @@ export class GeneraGraficaSaneamientos implements OnInit {
   }
 
   cargar(): void {
-    if (!this.fechaInicio || !this.fechaFin || this.estacionSeleccionada == null) {
+    if (!this.fechaInicio || !this.fechaFin ) {
       console.warn('Fecha inicio, fecha fin y estacion son obligatorias');
       return;
     }
@@ -140,10 +137,15 @@ export class GeneraGraficaSaneamientos implements OnInit {
         ? undefined
         : this.recetaSeleccionada;
 
+    const station =
+      this.estacionSeleccionada === null
+        ? undefined
+        : this.estacionSeleccionada;
+
     this.graficasService.SanitationProcesses(
       startDate,
       endDate,
-      this.estacionSeleccionada,
+      station,
       objectName,
       recipeName
     ).subscribe({
@@ -158,7 +160,11 @@ export class GeneraGraficaSaneamientos implements OnInit {
 
       this.registros = lista.map((item: any) => ({
         id: item.id,
+
         fecha: this.formatearFechaTabla(item.startTime),
+
+        fechaRaw: new Date(item.startTime),
+
         folio: item.id,
         estacion: item.station,
         circuito: item.objectName,
@@ -280,7 +286,6 @@ export class GeneraGraficaSaneamientos implements OnInit {
     this.objetoSeleccionado = null;
     this.recetaSeleccionada = null;
     this.registroSeleccionado = null;
-    this.columnaActiva = null;
     this.registros = [];
   }
 
@@ -308,5 +313,48 @@ export class GeneraGraficaSaneamientos implements OnInit {
     const day = String(fecha.getDate()).padStart(2, '0');
 
     return `${year}-${month}-${day}`;
+  }
+
+  exportarExcel(): void {
+    if (!this.registros || this.registros.length === 0) {
+      console.warn('No hay registros para exportar');
+      return;
+    }
+
+    // Preparar los datos para el Excel
+    const datosExport = this.registros.map(registro => ({
+      'Fecha': registro.fecha,
+      'Folio': registro.folio,
+      'Estación': registro.estacion,
+      'Circuito': registro.circuito,
+      'Receta': registro.receta,
+      'Usuario': registro.usuario
+    }));
+
+    // Crear el workbook y la hoja
+    const worksheet = XLSX.utils.json_to_sheet(datosExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Registros');
+
+    // Ajustar el ancho de las columnas
+    const colWidths = [
+      { wch: 25 },  // Fecha
+      { wch: 12 },  // Folio
+      { wch: 12 },  // Estación
+      { wch: 20 },  // Circuito
+      { wch: 20 },  // Receta
+      { wch: 15 }   // Usuario
+    ];
+    worksheet['!cols'] = colWidths;
+
+    // Generar el nombre del archivo con la fecha actual
+    const ahora = new Date();
+    const fecha = `${ahora.getDate().toString().padStart(2, '0')}-${(ahora.getMonth() + 1).toString().padStart(2, '0')}-${ahora.getFullYear()}`;
+    const hora = `${ahora.getHours().toString().padStart(2, '0')}-${ahora.getMinutes().toString().padStart(2, '0')}`;
+    const nombreArchivo = `Registros_Saneamiento_${fecha}_${hora}.xlsx`;
+
+    // Descargar el archivo
+    XLSX.writeFile(workbook, nombreArchivo);
+    console.log('Excel exportado exitosamente');
   }
 }
