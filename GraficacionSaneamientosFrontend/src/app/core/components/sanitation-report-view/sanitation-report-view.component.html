@@ -1,87 +1,80 @@
-<div class="report-overlay" *ngIf="visible">
-  <div class="report-header">
-    <h2>Reporte del proceso de lavado {{ header?.id }}</h2>
+@if (visible) {
+  <div class="report-overlay">
+    <div class="report-header">
+      <h2>Reporte del proceso de lavado {{ header?.id }}</h2>
 
-    <div class="acciones">
-      <button pButton label="Exportar PDF" (click)="exportarPDF()"></button>
-      <button pButton icon="pi pi-times" class="p-button-danger" (click)="cerrar()"></button>
-    </div>
-  </div>
-
-  <div class="report-content" #reportePDF>
-    <div class="cabecera-grid">
-      <div class="dato"><b>Proceso:</b> {{ header?.id }}</div>
-      <div class="dato"><b>Receta:</b> {{ header?.recipeName }}</div>
-      <div class="dato"><b>Objeto:</b> {{ header?.objectName }}</div>
-      <div class="dato"><b>Usuario:</b> {{ header?.userName }}</div>
+      <div class="acciones">
+        <button pButton label="Exportar PDF" (click)="exportarPDF()"></button>
+        <button pButton icon="pi pi-times" class="p-button-danger" (click)="cerrar()"></button>
+      </div>
     </div>
 
-    <div class="reporte-body">
-      <div class="columna-izquierda">
-        <div class="bloque">
-          <h3>Pasos del proceso</h3>
-
-          <table class="tabla-pasos">
-            <thead>
-              <tr>
-                <th>Paso</th>
-                <th>Duracion</th>
-                <th>Descripcion</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let paso of steps">
-                <td>{{ paso.step }}</td>
-                <td>{{ formatearDuracion(paso.duracionSegundos) }}</td>
-                <td>{{ paso.descripcion }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+    <div class="report-content" #reportePDF>
+      <div class="cabecera-grid">
+        <div class="dato"><b>Proceso:</b> {{ header?.id }}</div>
+        <div class="dato"><b>Receta:</b> {{ header?.recipeName }}</div>
+        <div class="dato"><b>Objeto:</b> {{ header?.objectName }}</div>
+        <div class="dato"><b>Usuario:</b> {{ header?.userName }}</div>
       </div>
 
-      <div class="columna-derecha">
-        <div class="bloque">
-          <h3>Etapas del proceso</h3>
+      <div class="reporte-body">
+        <div class="columna-izquierda">
+          <div class="bloque">
+            <h3>Pasos del proceso</h3>
 
-          <div class="barra-pasos">
-            <div
-              *ngFor="let paso of getPasosNormalizados()"
-              class="paso"
-              [style.flex]="paso.proporcion"
-              [title]="'Paso ' + paso.step + ' - ' + paso.descripcion + ' (' + formatearDuracion(paso.duracionSegundos) + ')'">
-              <span>{{ paso.step }}</span>
-            </div>
+            <table class="tabla-pasos">
+              <thead>
+                <tr>
+                  <th>Paso</th>
+                  <th>Duracion</th>
+                  <th>Descripcion</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (paso of steps; track paso.step) {
+                  <tr>
+                    <td>{{ paso.step }}</td>
+                    <td>{{ formatearDuracion(paso.duracionSegundos) }}</td>
+                    <td>{{ paso.descripcion }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
           </div>
         </div>
 
-        <div class="bloque grafica">
-          <h3>Temperatura</h3>
-          <p-chart
-            type="line"
-            [data]="chartTemperatura"
-            [style]="{ height: '280px' }">
-          </p-chart>
-        </div>
+        <div class="columna-derecha">
+          <div class="bloque">
+            <h3>Etapas del proceso</h3>
 
-        <div class="bloque grafica">
-          <h3>Concentración</h3>
-          <p-chart
-            type="line"
-            [data]="chartConcentracion"
-            [style]="{ height: '280px' }">
-          </p-chart>
-        </div>
+            <div class="barra-pasos">
+              @for (paso of getPasosNormalizados(); track paso.step) {
+                <div
+                  class="paso"
+                  [style.flex]="paso.proporcion"
+                  [title]="'Paso ' + paso.step + ' - ' + paso.descripcion + ' (' + formatearDuracion(paso.duracionSegundos) + ')'">
+                  <span>{{ paso.step }}</span>
+                </div>
+              }
+            </div>
+          </div>
 
-        <div class="bloque grafica">
-          <h3>Flujo</h3>
-          <p-chart
-            type="line"
-            [data]="chartFlujo"
-            [style]="{ height: '280px' }">
-          </p-chart>
+          <div class="chart-container large">
+            <h3>Temperatura</h3>
+            <p-chart type="line" [data]="chartTemperatura" [options]="chartOptions"></p-chart>
+          </div>
+
+          <div class="chart-container">
+            <h3>Concentración</h3>
+            <p-chart type="line" [data]="chartConcentracion" [options]="chartOptions"></p-chart>
+          </div>
+
+          <div class="chart-container">
+            <h3>Flujo</h3>
+            <p-chart type="line" [data]="chartFlujo" [options]="chartOptions"></p-chart>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
+}

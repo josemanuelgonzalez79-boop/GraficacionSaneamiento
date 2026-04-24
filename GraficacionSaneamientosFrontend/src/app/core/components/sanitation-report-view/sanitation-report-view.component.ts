@@ -1,8 +1,6 @@
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 import { Component, Input, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
-import { ButtonModule } from 'primeng/button';
 import { ChartModule } from 'primeng/chart';
+import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -10,7 +8,7 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule, ChartModule, ButtonModule],
   templateUrl: './sanitation-report-view.component.html',
-  styleUrl: './sanitation-report-view.component.scss'
+  styleUrls: ['./sanitation-report-view.component.scss']
 })
 export class SanitationReportView {
   @Input() visible = false;
@@ -21,48 +19,108 @@ export class SanitationReportView {
   @Input() chartFlujo: any;
   @Output() onClose = new EventEmitter<void>();
 
+chartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      position: 'top'
+    }
+  },
+  scales: {
+    x: {
+      ticks: {
+        maxRotation: 0,
+        autoSkip: true,
+        maxTicksLimit: 10
+      }
+    },
+    y: {
+      beginAtZero: true,
+      ticks: {
+        stepSize: 10, 
+        callback: function (value: any) {
+          return value.toFixed(0);
+        }
+      },
+      grid: {
+        color: '#e5e7eb'
+      }
+    }
+  }
+};
+
   @ViewChild('reportePDF') reportePDF!: ElementRef;
 
   cerrar() {
     this.onClose.emit();
   }
 
-  exportarPDF() {
-    const element = this.reportePDF.nativeElement;
+  async exportarPDF() {
+    try {
+      const { default: jsPDF } = await import('jspdf');
+      const html2canvas = (await import('html2canvas')).default;
 
-    html2canvas(element, {
-      scale: 2,
-      backgroundColor: '#ffffff',
-      useCORS: true
-    }).then(canvas => {
-      const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('l', 'mm', 'a4');
+      const reportElement = this.reportePDF.nativeElement;
+      const canvas = await html2canvas(reportElement, {
+        scale: 2,
+        backgroundColor: '#ffffff'
+      });
 
+      const imgData = canvas.toDataURL('image/png');
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
-
       const imgWidth = pageWidth - 20;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
       if (imgHeight <= pageHeight - 20) {
         pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
       } else {
-        let heightLeft = imgHeight;
-        let position = 10;
+        const pageCanvasHeight = Math.floor((canvas.width * (pageHeight - 20)) / imgWidth);
+        let remainingHeight = canvas.height;
+        let pageOffset = 0;
+        let firstPage = true;
 
-        pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight - 20;
+        while (remainingHeight > 0) {
+          const pageCanvas = document.createElement('canvas');
+          pageCanvas.width = canvas.width;
+          pageCanvas.height = Math.min(pageCanvasHeight, remainingHeight);
+          const pageCtx = pageCanvas.getContext('2d');
+          if (pageCtx) {
+            pageCtx.drawImage(
+              canvas,
+              0,
+              pageOffset,
+              canvas.width,
+              pageCanvas.height,
+              0,
+              0,
+              canvas.width,
+              pageCanvas.height
+            );
+          }
 
-        while (heightLeft > 0) {
-          position = heightLeft - imgHeight + 10;
-          pdf.addPage();
-          pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-          heightLeft -= pageHeight - 20;
+          const pageImgData = pageCanvas.toDataURL('image/png');
+
+          if (!firstPage) {
+            pdf.addPage();
+          }
+
+          const pageImgHeight = (pageCanvas.height * imgWidth) / canvas.width;
+          pdf.addImage(pageImgData, 'PNG', 10, 10, imgWidth, pageImgHeight);
+
+          firstPage = false;
+          pageOffset += pageCanvasHeight;
+          remainingHeight -= pageCanvasHeight;
         }
       }
 
-      pdf.save('reporte-saneamiento.pdf');
-    });
+      const proceso = this.header?.id ?? 'sin-id';
+      pdf.save(`reporte-proceso-${proceso}.pdf`);
+    } catch (error) {
+      console.error('Error exportando PDF:', error);
+    }
   }
 
   getPasosNormalizados() {

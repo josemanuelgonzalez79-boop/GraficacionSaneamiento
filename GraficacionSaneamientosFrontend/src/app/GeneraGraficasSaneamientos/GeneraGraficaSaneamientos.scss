@@ -84,3 +84,11 @@
   }
 }
 
+.chart-container {
+  width: 100%;
+  height: 300px;
+}
+
+.chart-container.large {
+  height: 350px;
+}

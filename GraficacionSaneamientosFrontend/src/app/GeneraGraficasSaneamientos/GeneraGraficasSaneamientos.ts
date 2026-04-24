@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -15,6 +16,7 @@ import * as XLSX from 'xlsx';
   standalone: true,
   imports: [
     CommonModule,
+    HttpClientModule,
     FormsModule,
     TableModule,
     ButtonModule,
@@ -22,6 +24,7 @@ import * as XLSX from 'xlsx';
     CalendarModule,
     SanitationReportView
   ],
+  providers: [GraficasService],
   templateUrl: './GeneraGraficaSaneamientos.html',
   styleUrls: ['./GeneraGraficaSaneamientos.scss']
 })
@@ -61,7 +64,7 @@ export class GeneraGraficaSaneamientos implements OnInit {
   chartFlujo: any;
   registros: any[] = [];
 
-  constructor(private graficasService: GraficasService) {}
+  constructor(@Inject(GraficasService) private graficasService: GraficasService) {}
 
   ngOnInit(): void {
     this.cargarObjetos();
