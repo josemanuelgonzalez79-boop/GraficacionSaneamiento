@@ -1,23 +1,34 @@
 @if (visible) {
   <div class="report-overlay">
-    <div class="report-header">
-      <h2>Reporte del proceso de lavado {{ header?.id }}</h2>
 
-      <div class="acciones">
-        <button pButton label="Exportar PDF" (click)="exportarPDF()"></button>
-        <button pButton icon="pi pi-times" class="p-button-danger" (click)="cerrar()"></button>
+    <div class="report-content" #reportePDF [class.exportando-pdf]="exportandoPDF">
+
+      <div class="report-header">
+        <h2>Reporte del proceso de lavado {{ header?.id }}</h2>
+
+        <div class="acciones no-pdf">
+          <button pButton label="Exportar PDF" (click)="exportarPDF()"></button>
+          <button pButton icon="pi pi-times" class="p-button-danger" (click)="cerrar()"></button>
+        </div>
       </div>
-    </div>
 
-    <div class="report-content" #reportePDF>
       <div class="cabecera-grid">
-        <div class="dato"><b>Proceso:</b> {{ header?.id }}</div>
+        <div class="dato"><b>Estación:</b> {{ header?.station }}</div>
+        <div class="dato"><b>Cliente:</b> Coca-Cola Grupo FEMSA, planta Coatepec</div>
+        <div class="dato"><b>Circuito:</b> {{ header?.objectName }}</div>
+
         <div class="dato"><b>Receta:</b> {{ header?.recipeName }}</div>
-        <div class="dato"><b>Objeto:</b> {{ header?.objectName }}</div>
         <div class="dato"><b>Usuario:</b> {{ header?.userName }}</div>
+        <div class="dato">
+          <b>Inicio:</b> {{ formatearFecha(header?.startTime) }}
+          &nbsp;&nbsp;
+          <b>Duración:</b> {{ calcularDuracion(header?.startTime, header?.finishTime) }}
+        </div>
       </div>
 
       <div class="reporte-body">
+
+        <!-- IZQUIERDA -->
         <div class="columna-izquierda">
           <div class="bloque">
             <h3>Pasos del proceso</h3>
@@ -26,10 +37,11 @@
               <thead>
                 <tr>
                   <th>Paso</th>
-                  <th>Duracion</th>
-                  <th>Descripcion</th>
+                  <th>Duración</th>
+                  <th>Descripción</th>
                 </tr>
               </thead>
+
               <tbody>
                 @for (paso of steps; track paso.step) {
                   <tr>
@@ -43,7 +55,9 @@
           </div>
         </div>
 
+        <!-- DERECHA -->
         <div class="columna-derecha">
+
           <div class="bloque">
             <h3>Etapas del proceso</h3>
 
@@ -73,8 +87,10 @@
             <h3>Flujo</h3>
             <p-chart type="line" [data]="chartFlujo" [options]="chartOptions"></p-chart>
           </div>
+
         </div>
       </div>
+
     </div>
   </div>
 }
