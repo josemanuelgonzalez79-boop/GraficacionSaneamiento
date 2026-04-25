@@ -59,6 +59,11 @@ export class SanitationReportView {
   }
 
   async exportarPDF() {
+    let reportElement: HTMLElement | null = null;
+    let originalWidth = '';
+    let originalMaxWidth = '';
+    let originalMargin = '';
+
     try {
       this.exportandoPDF = true;
 
@@ -68,55 +73,100 @@ export class SanitationReportView {
       const html2canvas = (await import('html2canvas')).default;
 
       const pdf = new jsPDF('l', 'mm', 'a4');
-      const reportElement = this.reportePDF.nativeElement;
+      reportElement = this.reportePDF.nativeElement as HTMLElement;
+      originalWidth = reportElement.style.width;
+      originalMaxWidth = reportElement.style.maxWidth;
+      originalMargin = reportElement.style.margin;
+
+      reportElement.style.width = '1200px';
+      reportElement.style.maxWidth = '1200px';
+      reportElement.style.margin = '0 auto';
+
+      // Esperar a que los gráficos terminen de renderizar
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      const chartElements = Array.from(reportElement.querySelectorAll('.chart-container')) as HTMLElement[];
+      const parentRect = reportElement.getBoundingClientRect();
+      const chartBlocks = chartElements.map(el => {
+        const rect = el.getBoundingClientRect();
+        const top = Math.max(0, rect.top - parentRect.top);
+        return { start: Math.round(top), end: Math.round(top + rect.height) };
+      });
 
       const canvas = await html2canvas(reportElement, {
         scale: 2,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        width: reportElement.scrollWidth,
+        height: reportElement.scrollHeight,
+        windowWidth: 1200,
+        windowHeight: reportElement.scrollHeight,
+        scrollX: 0,
+        scrollY: 0,
+        useCORS: true,
+        allowTaint: true,
+        logging: false
       });
+
+      reportElement.style.width = originalWidth;
+      reportElement.style.maxWidth = originalMaxWidth;
+      reportElement.style.margin = originalMargin;
 
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
       const imgWidth = pageWidth - 20;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const maxPageHeight = pageHeight - 20;
+      const scale = canvas.width / reportElement.scrollWidth;
+      const scaledChartBlocks = chartBlocks.map(block => ({
+        start: Math.floor(block.start * scale),
+        end: Math.ceil(block.end * scale)
+      }));
 
-      if (imgHeight <= pageHeight - 20) {
+      if (imgHeight <= maxPageHeight) {
         const imgData = canvas.toDataURL('image/png');
         pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
       } else {
-        const pageCanvasHeight = Math.floor((canvas.width * (pageHeight - 20)) / imgWidth);
+        const pixelsPerPage = Math.floor((canvas.width * maxPageHeight) / imgWidth);
         let remainingHeight = canvas.height;
         let pageOffset = 0;
         let firstPage = true;
 
         while (remainingHeight > 0) {
+          let pageCanvasHeight = Math.min(pixelsPerPage, remainingHeight);
+          let sliceEnd = pageOffset + pageCanvasHeight;
+
+          const blockingChart = scaledChartBlocks.find(chart => chart.start > pageOffset && chart.start < sliceEnd && chart.end > sliceEnd);
+          if (blockingChart) {
+            // Si el corte ocurre dentro de un gráfico, adelanta el final de página al inicio del gráfico.
+            sliceEnd = blockingChart.start;
+            pageCanvasHeight = Math.max(1, sliceEnd - pageOffset);
+          }
+
           const pageCanvas = document.createElement('canvas');
           pageCanvas.width = canvas.width;
-          pageCanvas.height = Math.min(pageCanvasHeight, remainingHeight);
+          pageCanvas.height = pageCanvasHeight;
 
           const pageCtx = pageCanvas.getContext('2d');
-
           if (pageCtx) {
             pageCtx.drawImage(
               canvas,
               0,
               pageOffset,
               canvas.width,
-              pageCanvas.height,
+              pageCanvasHeight,
               0,
               0,
               canvas.width,
-              pageCanvas.height
+              pageCanvasHeight
             );
           }
 
           const pageImgData = pageCanvas.toDataURL('image/png');
-
           if (!firstPage) {
             pdf.addPage();
           }
 
-          const pageImgHeight = (pageCanvas.height * imgWidth) / canvas.width;
+          const pageImgHeight = (pageCanvasHeight * imgWidth) / canvas.width;
           pdf.addImage(pageImgData, 'PNG', 10, 10, imgWidth, pageImgHeight);
 
           firstPage = false;
@@ -130,6 +180,11 @@ export class SanitationReportView {
     } catch (error) {
       console.error('Error exportando PDF:', error);
     } finally {
+      if (reportElement) {
+        reportElement.style.width = originalWidth;
+        reportElement.style.maxWidth = originalMaxWidth;
+        reportElement.style.margin = originalMargin;
+      }
       this.exportandoPDF = false;
     }
   }

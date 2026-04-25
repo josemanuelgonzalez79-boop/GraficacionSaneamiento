@@ -41,6 +41,10 @@
 }
 
 .exportando-pdf {
+  width: 1200px;
+  max-width: 1200px;
+  margin: 0 auto;
+
   .no-pdf {
     display: none !important;
   }
@@ -103,17 +107,18 @@
 .tabla-pasos {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
-  table-layout: fixed;
+  font-size: 13px;
+  table-layout: auto;
 
   th,
   td {
     border: 1px solid #cbd5e1;
-    padding: 8px 10px;
+    padding: 6px 8px;
     text-align: left;
     vertical-align: top;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   th {
@@ -128,12 +133,20 @@
 
 .tabla-pasos th:nth-child(1),
 .tabla-pasos td:nth-child(1) {
-  width: 42px;
+  width: 50px;
+  text-align: center;
 }
 
 .tabla-pasos th:nth-child(2),
 .tabla-pasos td:nth-child(2) {
-  width: 75px;
+  width: 70px;
+  text-align: center;
+}
+
+.tabla-pasos th:nth-child(3),
+.tabla-pasos td:nth-child(3) {
+  white-space: normal;
+  word-break: break-word;
 }
 
 .barra-pasos {
@@ -194,11 +207,27 @@
   border-radius: 10px;
   padding: 10px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  position: relative;
+  page-break-inside: avoid;
+  break-inside: avoid;
 }
 
 .chart-container h3 {
   text-align: center;
   margin: 0 0 10px 0;
+  font-size: 16px;
+  color: #111827;
+}
+
+.chart-container p-chart {
+  display: block;
+  width: 100% !important;
+  min-height: 300px;
+}
+
+::ng-deep .chart-container canvas {
+  max-width: 100% !important;
+  height: auto !important;
 }
 
 @media print {
