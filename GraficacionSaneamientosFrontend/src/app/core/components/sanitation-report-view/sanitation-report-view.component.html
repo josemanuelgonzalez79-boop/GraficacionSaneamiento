@@ -19,16 +19,14 @@
 
         <div class="dato"><b>Receta:</b> {{ header?.recipeName }}</div>
         <div class="dato"><b>Usuario:</b> {{ header?.userName }}</div>
-        <div class="dato">
-          <b>Inicio:</b> {{ formatearFecha(header?.startTime) }}
-          &nbsp;&nbsp;
-          <b>Duración:</b> {{ calcularDuracion(header?.startTime, header?.finishTime) }}
+        <div class="dato dato-tiempo">
+          <span><b>Inicio:</b> {{ formatearFecha(header?.startTime) }}</span>
+          <span><b>Duración:</b> {{ calcularDuracion(header?.startTime, header?.finishTime) }}</span>
         </div>
       </div>
 
       <div class="reporte-body">
 
-        <!-- IZQUIERDA -->
         <div class="columna-izquierda">
           <div class="bloque">
             <h3>Pasos del proceso</h3>
@@ -55,7 +53,6 @@
           </div>
         </div>
 
-        <!-- DERECHA -->
         <div class="columna-derecha">
 
           <div class="bloque">
@@ -71,6 +68,24 @@
                 </div>
               }
             </div>
+          </div>
+
+          <div class="panel-interaccion no-pdf">
+            <div class="modo-opciones">
+              <label>
+                <input type="radio" name="modoGrafica" checked>
+                Modo Zoom
+              </label>
+
+              <label>
+                <input type="radio" name="modoGrafica">
+                Modo Selección
+              </label>
+            </div>
+
+            <button type="button" class="btn-reset">
+              Reset
+            </button>
           </div>
 
           <div class="chart-container large">
