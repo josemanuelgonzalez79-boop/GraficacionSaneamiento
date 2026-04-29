@@ -8,7 +8,7 @@
       selectionMode="single"
       [(selection)]="registroSeleccionado"
       [scrollable]="true"
-      scrollHeight="calc(100vh - 120px)"
+      scrollHeight="calc(100vh - 70px)"
       styleClass="tabla-saneamientos"
       sortMode="single"
     >
@@ -45,6 +45,11 @@
             Usuario
             <p-sortIcon field="usuario"></p-sortIcon>
           </th>
+
+          <th pSortableColumn="duracion">
+            Duración
+            <p-sortIcon field="duracion"></p-sortIcon>
+          </th>
         </tr>
       </ng-template>
 
@@ -57,6 +62,7 @@
           <td>{{ registro.circuito }}</td>
           <td>{{ registro.receta }}</td>
           <td>{{ registro.usuario }}</td>
+          <td>{{ registro.duracion }}</td>
         </tr>
       </ng-template>
 
@@ -78,21 +84,29 @@
 
     <div class="campo">
       <label>Estación</label>
-        <p-dropdown 
-          [options]="estaciones"
-          [(ngModel)]="estacionSeleccionada"
-          placeholder="Selecciona estación">
-        </p-dropdown>
+      <p-dropdown 
+        [options]="estaciones"
+        [(ngModel)]="estacionSeleccionada"
+        placeholder="Selecciona estación">
+      </p-dropdown>
     </div>
 
     <div class="campo">
       <label>Objeto</label>
-      <p-dropdown [options]="objetos" [(ngModel)]="objetoSeleccionado" placeholder="Selecciona objeto"></p-dropdown>
+      <p-dropdown 
+        [options]="objetos" 
+        [(ngModel)]="objetoSeleccionado" 
+        placeholder="Selecciona objeto">
+      </p-dropdown>
     </div>
 
     <div class="campo">
       <label>Receta</label>
-      <p-dropdown [options]="recetas" [(ngModel)]="recetaSeleccionada" placeholder="Selecciona receta"></p-dropdown>
+      <p-dropdown 
+        [options]="recetas" 
+        [(ngModel)]="recetaSeleccionada" 
+        placeholder="Selecciona receta">
+      </p-dropdown>
     </div>
 
     <button pButton label="Cargar" (click)="cargar()"></button>

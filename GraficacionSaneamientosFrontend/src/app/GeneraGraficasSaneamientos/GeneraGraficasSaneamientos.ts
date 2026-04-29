@@ -122,8 +122,8 @@ export class GeneraGraficaSaneamientos implements OnInit {
   }
 
   cargar(): void {
-    if (!this.fechaInicio || !this.fechaFin ) {
-      console.warn('Fecha inicio, fecha fin y estacion son obligatorias');
+    if (!this.fechaInicio || !this.fechaFin) {
+      console.warn('Fecha inicio y fecha fin son obligatorias');
       return;
     }
 
@@ -153,7 +153,8 @@ export class GeneraGraficaSaneamientos implements OnInit {
       recipeName
     ).subscribe({
       next: (resp) => {
-        console.log('Procesos de saneamiento:', resp);
+
+        console.log('RESPUESTA BACKEND:', resp);
 
         const lista =
           Array.isArray(resp.data) ? resp.data :
@@ -161,21 +162,30 @@ export class GeneraGraficaSaneamientos implements OnInit {
           Array.isArray(resp.data?.procesos) ? resp.data.procesos :
           [];
 
-      this.registros = lista.map((item: any) => ({
-        id: item.id,
+        // 🔥 DEBUG CLAVE
+        console.log('LISTA COMPLETA:', lista);
+        console.log('PRIMER ITEM:', lista[0]);
+        console.log('DURATION DEL PRIMER ITEM:', lista[0]?.duration);
 
-        fecha: this.formatearFechaTabla(item.startTime),
+        this.registros = lista.map((item: any) => ({
+          id: item.id,
 
-        fechaRaw: new Date(item.startTime),
+          fecha: this.formatearFechaTabla(item.startTime),
+          fechaRaw: new Date(item.startTime),
 
-        folio: item.id,
-        estacion: item.station,
-        circuito: item.objectName,
-        receta: item.recipeName,
-        usuario: item.userName
-      }));
-        console.log('Registros finales:', this.registros);
+          folio: item.id,
+          estacion: item.station,
+          circuito: item.objectName,
+          receta: item.recipeName,
+          usuario: item.userName,
+
+          // 🔥 CLAVE
+          duracion: item.duration
+        }));
+
+        console.log('REGISTROS FINALES:', this.registros);
       },
+
       error: (err) => {
         console.error('Error al cargar procesos de saneamiento', err);
       }
@@ -224,19 +234,26 @@ export class GeneraGraficaSaneamientos implements OnInit {
           label: 'Meta',
           data: this.rawData.map((d: any) => d.spTemp),
           borderColor: 'black',
-          fill: false
+          fill: false,
+          borderWidth: 1.5,
+          pointRadius: 0,
+          stepped: true
         },
         {
           label: 'Retorno',
           data: this.rawData.map((d: any) => d.returnTemp),
           borderColor: 'green',
-          fill: false
+          fill: false,
+          borderWidth: 1.5,
+          pointRadius: 0
         },
         {
           label: 'Suministro',
           data: this.rawData.map((d: any) => d.supplyTemp),
           borderColor: 'red',
-          fill: false
+          fill: false,
+          borderWidth: 1.5,
+          pointRadius: 0
         }
       ]
     };
@@ -249,13 +266,18 @@ export class GeneraGraficaSaneamientos implements OnInit {
           label: 'Meta',
           data: this.rawData.map((d: any) => d.spCond),
           borderColor: 'black',
-          fill: false
+          fill: false,
+          borderWidth: 1.5,
+          pointRadius: 0,
+          stepped: true
         },
         {
           label: 'Retorno',
           data: this.rawData.map((d: any) => d.returnCond),
           borderColor: 'blue',
-          fill: false
+          fill: false,
+          borderWidth: 1.5,
+          pointRadius: 0
         }
       ]
     };
@@ -268,13 +290,18 @@ export class GeneraGraficaSaneamientos implements OnInit {
           label: 'Meta',
           data: this.rawData.map((d: any) => d.spFlow),
           borderColor: 'black',
-          fill: false
+          fill: false,
+          borderWidth: 1.5,
+          pointRadius: 0,
+          stepped: true
         },
         {
           label: 'Suministro',
           data: this.rawData.map((d: any) => d.supplyFlow),
           borderColor: 'purple',
-          fill: false
+          fill: false,
+          borderWidth: 1.5,
+          pointRadius: 0
         }
       ]
     };

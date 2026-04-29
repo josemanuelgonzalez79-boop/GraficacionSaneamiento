@@ -1,8 +1,8 @@
 .saneamientos-page {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
-  gap: 20px;
-  padding: 14px;
+  grid-template-columns: minmax(0, 1fr) 285px;
+  gap: 14px;
+  padding: 12px;
   height: 100vh;
   box-sizing: border-box;
   overflow: hidden;
@@ -10,20 +10,23 @@
 }
 
 .tabla-wrapper {
+  display: flex;
+  flex-direction: column;
   height: 100%;
-  overflow: hidden;
+  min-width: 0;
 }
 
 .panel-filtros {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
+  width: 285px;
 }
 
 .campo {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
 }
 
 .campo label {
@@ -32,7 +35,7 @@
 }
 
 :host ::ng-deep .p-button {
-  height: 2.7rem;
+  height: 2.55rem;
   font-weight: 700;
   border-radius: 8px;
 }
@@ -56,7 +59,28 @@
 }
 
 :host ::ng-deep .tabla-saneamientos {
-  height: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+}
+
+:host ::ng-deep .tabla-saneamientos .p-datatable-wrapper {
+  flex: 1;
+}
+
+:host ::ng-deep .tabla-saneamientos table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+:host ::ng-deep .tabla-saneamientos th,
+:host ::ng-deep .tabla-saneamientos td {
+  padding: 9px 10px;
+  vertical-align: middle;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 :host ::ng-deep .tabla-saneamientos th {
@@ -66,6 +90,41 @@
 
 :host ::ng-deep .tabla-saneamientos td {
   border: 1px solid #b1b1b1;
+}
+
+:host ::ng-deep .tabla-saneamientos th:nth-child(1),
+:host ::ng-deep .tabla-saneamientos td:nth-child(1) {
+  width: 17%;
+}
+
+:host ::ng-deep .tabla-saneamientos th:nth-child(2),
+:host ::ng-deep .tabla-saneamientos td:nth-child(2) {
+  width: 8%;
+}
+
+:host ::ng-deep .tabla-saneamientos th:nth-child(3),
+:host ::ng-deep .tabla-saneamientos td:nth-child(3) {
+  width: 9%;
+}
+
+:host ::ng-deep .tabla-saneamientos th:nth-child(4),
+:host ::ng-deep .tabla-saneamientos td:nth-child(4) {
+  width: 17%;
+}
+
+:host ::ng-deep .tabla-saneamientos th:nth-child(5),
+:host ::ng-deep .tabla-saneamientos td:nth-child(5) {
+  width: 25%;
+}
+
+:host ::ng-deep .tabla-saneamientos th:nth-child(6),
+:host ::ng-deep .tabla-saneamientos td:nth-child(6) {
+  width: 10%;
+}
+
+:host ::ng-deep .tabla-saneamientos th:nth-child(7),
+:host ::ng-deep .tabla-saneamientos td:nth-child(7) {
+  width: 14%;
 }
 
 :host ::ng-deep .tabla-saneamientos .p-highlight td {
@@ -82,13 +141,17 @@
   .saneamientos-page {
     grid-template-columns: 1fr;
   }
+
+  .panel-filtros {
+    width: 100%;
+  }
 }
 
 .chart-container {
   width: 100%;
-  height: 300px;
+  height: 100%;
 }
 
 .chart-container.large {
-  height: 350px;
+  height: 100%;
 }

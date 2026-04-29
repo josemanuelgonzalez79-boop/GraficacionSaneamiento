@@ -130,6 +130,7 @@ public class GraficacionSaneamientosRepository {
 
         StringBuilder sql = new StringBuilder("""
             SELECT start_time,
+                finish_time,
                 id,
                 station,
                 object_name,
@@ -170,6 +171,11 @@ public class GraficacionSaneamientosRepository {
                 .recipeName(rs.getString("recipe_name"))
                 .userName(rs.getString("user_name"))
                 .startTime(rs.getTimestamp("start_time").toLocalDateTime())
+                .finishTime(
+                    rs.getTimestamp("finish_time") != null
+                        ? rs.getTimestamp("finish_time").toLocalDateTime()
+                        : null
+                )
                 .build()
         );
     }

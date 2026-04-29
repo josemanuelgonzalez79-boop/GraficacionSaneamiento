@@ -1,5 +1,7 @@
 package com.icap.services.impl;
+
 import org.springframework.stereotype.Service;
+
 import com.icap.dto.ApiResponseDTO;
 import com.icap.dto.CabeceraReporteDTO;
 import com.icap.dto.ObjectDTO;
@@ -14,7 +16,9 @@ import com.icap.entities.RegistroDatoEntity;
 import com.icap.repositories.GraficacionSaneamientosRepository;
 import com.icap.services.GraficasSaneamientosService;
 import com.icap.utils.LogUtil;
+
 import jakarta.servlet.http.HttpServletResponse;
+
 import static com.icap.constants.Estado.FALLO;
 import static com.icap.constants.Estado.FINALIZA_TRANSACCION;
 import static com.icap.constants.Estado.INICIA_TRANSACCION;
@@ -22,6 +26,7 @@ import static com.icap.constants.MetaConstanst.META_ERROR;
 import static com.icap.constants.MetaConstanst.META_OK;
 
 import java.sql.Timestamp;
+import java.time.Duration; 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +38,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class GraficasSaneamientosServiceImpl implements GraficasSaneamientosService {
-    
+
     private final GraficacionSaneamientosRepository saneamientosRepository;
     private final LogUtil log;
 
@@ -42,22 +47,22 @@ public class GraficasSaneamientosServiceImpl implements GraficasSaneamientosServ
 
         log.grabar(INICIA_TRANSACCION, "OBTENER_REPORTE", "");
 
-        try{
+        try {
 
             CabeceraReporteDTO header =
                     saneamientosRepository.obtenerCabecera(id);
 
-            if(header == null){
+            if (header == null) {
                 throw new RuntimeException("Proceso no encontrado");
             }
 
             String tabla;
 
-            if(header.getStation() == 1){
+            if (header.getStation() == 1) {
                 tabla = "cleaning01_data";
-            }else if(header.getStation() == 2){
+            } else if (header.getStation() == 2) {
                 tabla = "cleaning02_data";
-            }else{
+            } else {
                 throw new RuntimeException("Estación inválida");
             }
 
@@ -68,32 +73,29 @@ public class GraficasSaneamientosServiceImpl implements GraficasSaneamientosServ
                     saneamientosRepository.obtenerDatosCrudos(id, tabla);
 
             List<RegistroDatoDTO> rawDataDTO = rawData.stream()
-                .map((RegistroDatoEntity d) -> RegistroDatoDTO.builder()
-                    .tiempo(d.getTiempo().toLocalDateTime())
-                    .spTemp(d.getSpTemp())
-                    .returnTemp(d.getReturnTemp())
-                    .supplyTemp(d.getSupplyTemp())
-                    .spCond(d.getSpCond())
-                    .returnCond(d.getReturnCond())
-                    .spFlow(d.getSpFlow())
-                    .supplyFlow(d.getSupplyFlow())
-                    .build())
-                .toList();
+                    .map((RegistroDatoEntity d) -> RegistroDatoDTO.builder()
+                            .tiempo(d.getTiempo().toLocalDateTime())
+                            .spTemp(d.getSpTemp())
+                            .returnTemp(d.getReturnTemp())
+                            .supplyTemp(d.getSupplyTemp())
+                            .spCond(d.getSpCond())
+                            .returnCond(d.getReturnCond())
+                            .spFlow(d.getSpFlow())
+                            .supplyFlow(d.getSupplyFlow())
+                            .build())
+                    .toList();
 
-            // Agrupar tiempos por step
             Map<Integer, List<Timestamp>> tiemposPorPaso = new HashMap<>();
 
             for (PasoRawEntity row : pasosRaw) {
                 tiemposPorPaso
-                    .computeIfAbsent(row.getStep(), k -> new ArrayList<>())
-                    .add(row.getUpdateTime());
+                        .computeIfAbsent(row.getStep(), k -> new ArrayList<>())
+                        .add(row.getUpdateTime());
             }
 
-            // Obtener descripciones
             Map<Integer, String> descripciones =
                     saneamientosRepository.obtenerDescripciones();
 
-            // Construir pasos finales
             List<PasoProcesoDTO> steps = new ArrayList<>();
 
             int pasoSecuencial = 1;
@@ -108,13 +110,13 @@ public class GraficasSaneamientosServiceImpl implements GraficasSaneamientosServ
                 long duracionSegundos = (fin.getTime() - inicio.getTime()) / 1000;
 
                 steps.add(
-                    PasoProcesoDTO.builder()
-                        .step(pasoSecuencial++)
-                        .duracionSegundos(duracionSegundos)
-                        .descripcion(
-                            descripciones.getOrDefault(step, "-")
-                        )
-                        .build()
+                        PasoProcesoDTO.builder()
+                                .step(pasoSecuencial++)
+                                .duracionSegundos(duracionSegundos)
+                                .descripcion(
+                                        descripciones.getOrDefault(step, "-")
+                                )
+                                .build()
                 );
             }
 
@@ -131,7 +133,7 @@ public class GraficasSaneamientosServiceImpl implements GraficasSaneamientosServ
                     .data(report)
                     .build();
 
-        }catch(Exception e){
+        } catch (Exception e) {
 
             log.grabar(FALLO, "OBTENER_REPORTE", e.getMessage());
 
@@ -146,7 +148,7 @@ public class GraficasSaneamientosServiceImpl implements GraficasSaneamientosServ
 
         log.grabar(INICIA_TRANSACCION, "OBTENER_PROCESOS", "");
 
-        try{
+        try {
 
             List<SanitationProcessDTO> procesos =
                     saneamientosRepository.obtenerProcesos(
@@ -157,6 +159,24 @@ public class GraficasSaneamientosServiceImpl implements GraficasSaneamientosServ
                             filter.getRecipeName()
                     );
 
+            for (SanitationProcessDTO p : procesos) {
+
+                if (p.getStartTime() != null && p.getFinishTime() != null) {
+
+                    Duration d = Duration.between(p.getStartTime(), p.getFinishTime());
+
+                    long h = d.toHours();
+                    long m = d.toMinutesPart();
+                    long s = d.toSecondsPart();
+
+                    String duration = String.format("%02d:%02d:%02d", h, m, s);
+
+                    p.setDuration(duration);
+                } else {
+                    p.setDuration("-");
+                }
+            }
+
             log.grabar(FINALIZA_TRANSACCION, "OBTENER_PROCESOS", "");
 
             return ApiResponseDTO.builder()
@@ -164,7 +184,7 @@ public class GraficasSaneamientosServiceImpl implements GraficasSaneamientosServ
                     .data(procesos)
                     .build();
 
-        }catch(Exception e){
+        } catch (Exception e) {
 
             log.grabar(FALLO, "OBTENER_PROCESOS", e.getMessage());
 
@@ -179,7 +199,7 @@ public class GraficasSaneamientosServiceImpl implements GraficasSaneamientosServ
 
         log.grabar(INICIA_TRANSACCION, "OBTENER_RECETAS", "");
 
-        try{
+        try {
 
             List<RecipeDTO> recetas =
                     saneamientosRepository.obtenerRecetas();
@@ -191,7 +211,7 @@ public class GraficasSaneamientosServiceImpl implements GraficasSaneamientosServ
                     .data(recetas)
                     .build();
 
-        }catch(Exception e){
+        } catch (Exception e) {
 
             log.grabar(FALLO, "OBTENER_RECETAS", e.getMessage());
 
@@ -206,7 +226,7 @@ public class GraficasSaneamientosServiceImpl implements GraficasSaneamientosServ
 
         log.grabar(INICIA_TRANSACCION, "OBTENER_OBJETOS", "");
 
-        try{
+        try {
 
             List<ObjectDTO> objetos =
                     saneamientosRepository.obtenerObjetos();
@@ -218,7 +238,7 @@ public class GraficasSaneamientosServiceImpl implements GraficasSaneamientosServ
                     .data(objetos)
                     .build();
 
-        }catch(Exception e){
+        } catch (Exception e) {
 
             log.grabar(FALLO, "OBTENER_OBJETOS", e.getMessage());
 
@@ -227,5 +247,4 @@ public class GraficasSaneamientosServiceImpl implements GraficasSaneamientosServ
                     .build();
         }
     }
-
 }

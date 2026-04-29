@@ -22,4 +22,6 @@ public class SanitationProcessDTO {
 
     private LocalDateTime startTime;
 
+    private LocalDateTime finishTime;
+    private String duration;
 }
