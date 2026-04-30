@@ -23,6 +23,13 @@ export class SanitationReportView {
 
   exportandoPDF = false;
 
+  etapaSeleccionada: any = null;
+
+  seleccionarEtapa(paso: any): void {
+    this.etapaSeleccionada = paso;
+    console.log('Etapa seleccionada:', paso);
+  }
+
   chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -82,7 +89,6 @@ export class SanitationReportView {
       reportElement.style.maxWidth = '1200px';
       reportElement.style.margin = '0 auto';
 
-      // Esperar a que los gráficos terminen de renderizar
       await new Promise(resolve => setTimeout(resolve, 500));
 
       const chartElements = Array.from(reportElement.querySelectorAll('.chart-container')) as HTMLElement[];
@@ -137,7 +143,6 @@ export class SanitationReportView {
 
           const blockingChart = scaledChartBlocks.find(chart => chart.start > pageOffset && chart.start < sliceEnd && chart.end > sliceEnd);
           if (blockingChart) {
-            // Si el corte ocurre dentro de un gráfico, adelanta el final de página al inicio del gráfico.
             sliceEnd = blockingChart.start;
             pageCanvasHeight = Math.max(1, sliceEnd - pageOffset);
           }

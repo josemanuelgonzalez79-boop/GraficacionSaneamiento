@@ -4,12 +4,22 @@
     <div class="report-content" #reportePDF [class.exportando-pdf]="exportandoPDF">
 
       <div class="report-header">
+
+        <div class="header-brand">
+          <img src="assets/LOGO-ICAP.png" alt="ICAP">
+        </div>
+
         <h2>Reporte del proceso de lavado {{ header?.id }}</h2>
+
+        <div class="header-brand">
+          <img src="assets/LOGO_FEMSA.png" alt="FEMSA">
+        </div>
 
         <div class="acciones no-pdf">
           <button pButton label="Exportar PDF" (click)="exportarPDF()"></button>
           <button pButton icon="pi pi-times" class="p-button-danger" (click)="cerrar()"></button>
         </div>
+
       </div>
 
       <div class="cabecera-grid">
@@ -60,12 +70,15 @@
 
             <div class="barra-pasos">
               @for (paso of getPasosNormalizados(); track paso.step) {
-                <div
+                <button
+                  type="button"
                   class="paso"
+                  [class.paso-activo]="etapaSeleccionada?.step == paso.step"
                   [style.flex]="paso.proporcion"
-                  [title]="'Paso ' + paso.step + ' - ' + paso.descripcion + ' (' + formatearDuracion(paso.duracionSegundos) + ')'">
+                  [title]="'Etapa ' + paso.step + ' - ' + paso.descripcion + ' (' + formatearDuracion(paso.duracionSegundos) + ')'"
+                  (click)="seleccionarEtapa(paso)">
                   <span>{{ paso.step }}</span>
-                </div>
+                </button>
               }
             </div>
           </div>
