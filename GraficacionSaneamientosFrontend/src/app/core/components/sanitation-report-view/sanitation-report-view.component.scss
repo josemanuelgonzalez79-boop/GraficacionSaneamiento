@@ -277,10 +277,20 @@
 }
 
 .paso-activo {
-  background: linear-gradient(135deg, #f59e0b, #d97706) !important;
-  color: #111827 !important;
-  transform: scaleY(1.1);
+  background: linear-gradient(135deg, #2563eb, #1e3a8a) !important;
+  color: #ffffff !important;
+
+  border: 2px solid #000000; 
+
+  box-shadow:
+    0 0 0 2px rgba(0, 0, 0, 0.6), 
+    0 4px 10px rgba(0, 0, 0, 0.3);
+
+  transform: scaleY(1.06);
   z-index: 2;
+
+  transition: all 0.2s ease;
+  cursor: pointer;
 }
 
 .grafica {

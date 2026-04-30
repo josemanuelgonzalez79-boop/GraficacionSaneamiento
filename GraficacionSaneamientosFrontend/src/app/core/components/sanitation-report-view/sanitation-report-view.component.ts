@@ -2,6 +2,8 @@ import { Component, Input, Output, EventEmitter, ViewChild, ElementRef } from '@
 import { ChartModule } from 'primeng/chart';
 import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
+import { QueryList, ViewChildren } from '@angular/core';
+import { UIChart } from 'primeng/chart';
 
 @Component({
   selector: 'app-sanitation-report-view',
@@ -20,14 +22,81 @@ export class SanitationReportView {
   @Output() onClose = new EventEmitter<void>();
 
   @ViewChild('reportePDF') reportePDF!: ElementRef;
+  @ViewChildren(UIChart) charts!: QueryList<UIChart>;
 
   exportandoPDF = false;
 
   etapaSeleccionada: any = null;
 
+  chartPlugins = [
+    {
+      id: 'etapaSeleccionadaPlugin',
+      beforeDatasetsDraw: (chart: any) => {
+
+        if (!this.etapaSeleccionada || !this.steps?.length) return;
+
+        const totalSegundos = this.steps.reduce(
+          (acc, p) => acc + (p.duracionSegundos || 0),
+          0
+        );
+
+        let inicioSegundos = 0;
+
+        for (const paso of this.steps) {
+          if (paso.step == this.etapaSeleccionada.step) break;
+          inicioSegundos += paso.duracionSegundos || 0;
+        }
+
+        const finSegundos =
+          inicioSegundos + (this.etapaSeleccionada.duracionSegundos || 0);
+
+        const { ctx, chartArea } = chart;
+
+        if (!chartArea) return;
+
+        const ancho = chartArea.right - chartArea.left;
+
+        const xInicio =
+          chartArea.left + (inicioSegundos / totalSegundos) * ancho;
+
+        const xFin =
+          chartArea.left + (finSegundos / totalSegundos) * ancho;
+
+        ctx.save();
+
+        ctx.fillStyle = 'rgba(59, 130, 246, 0.12)';
+        ctx.strokeStyle = '#2563eb'; 
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(xInicio, chartArea.top);
+        ctx.lineTo(xInicio, chartArea.bottom);
+        ctx.moveTo(xFin, chartArea.top);
+        ctx.lineTo(xFin, chartArea.bottom);
+        ctx.stroke();
+        ctx.fillRect(
+          xInicio,
+          chartArea.top,
+          xFin - xInicio,
+          chartArea.bottom - chartArea.top
+        );
+
+        ctx.restore();
+      }
+    }
+  ];
+
   seleccionarEtapa(paso: any): void {
-    this.etapaSeleccionada = paso;
-    console.log('Etapa seleccionada:', paso);
+    if (this.etapaSeleccionada?.step == paso.step) {
+      this.etapaSeleccionada = null;
+    } else {
+      this.etapaSeleccionada = paso;
+    }
+
+    setTimeout(() => {
+      this.charts?.forEach(chart => {
+        chart.chart?.update();
+      });
+    });
   }
 
   chartOptions = {
