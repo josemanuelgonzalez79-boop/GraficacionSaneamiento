@@ -57,10 +57,10 @@ public class GraficacionSaneamientosRepository {
 
         String query = """
             SELECT step, update_time
-            FROM %s
+            FROM cleaning_data
             WHERE id = :id
-            ORDER BY step, update_time
-        """.formatted(tabla);
+            ORDER BY update_time
+        """;
 
         return jdbcTemplate.query(
             query,
@@ -76,8 +76,8 @@ public class GraficacionSaneamientosRepository {
         String query = """
             SELECT update_time, sp_temp, return_temp, supply_temp,
                 sp_cond, return_cond, sp_flow, supply_flow
-            FROM %s WHERE id = :id ORDER BY update_time
-        """.formatted(tabla);
+            FROM cleaning_data WHERE id = :id ORDER BY update_time
+        """;
 
         return jdbcTemplate.query(
             query,

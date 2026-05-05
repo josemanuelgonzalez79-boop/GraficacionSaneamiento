@@ -16,6 +16,7 @@ import com.icap.entities.RegistroDatoEntity;
 import com.icap.repositories.GraficacionSaneamientosRepository;
 import com.icap.services.GraficasSaneamientosService;
 import com.icap.utils.LogUtil;
+import java.util.Comparator;
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -100,9 +101,15 @@ public class GraficasSaneamientosServiceImpl implements GraficasSaneamientosServ
 
             int pasoSecuencial = 1;
 
-            for (Integer step : new TreeSet<>(tiemposPorPaso.keySet())) {
+            List<Map.Entry<Integer, List<Timestamp>>> pasosOrdenados =
+                    new ArrayList<>(tiemposPorPaso.entrySet());
 
-                List<Timestamp> tiempos = tiemposPorPaso.get(step);
+            pasosOrdenados.sort(Comparator.comparing(entry -> entry.getValue().get(0)));
+
+            for (Map.Entry<Integer, List<Timestamp>> entry : pasosOrdenados) {
+
+                Integer step = entry.getKey();
+                List<Timestamp> tiempos = entry.getValue();
 
                 Timestamp inicio = tiempos.get(0);
                 Timestamp fin = tiempos.get(tiempos.size() - 1);
