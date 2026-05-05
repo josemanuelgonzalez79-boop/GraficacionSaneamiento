@@ -1,3 +1,13 @@
+<div class="header-sistema">
+  <div class="marca">
+    <img src="assets/EmblemaIcap.png" alt="ICAP">
+    <div class="texto">
+      <h1>OptiClean</h1>
+      <span>Sistema de saneamientos</span>
+    </div>
+  </div>
+</div>
+
 <div class="saneamientos-page">
 
   <!-- TABLA -->
@@ -8,7 +18,7 @@
       selectionMode="single"
       [(selection)]="registroSeleccionado"
       [scrollable]="true"
-      scrollHeight="calc(100vh - 70px)"
+      scrollHeight="calc(100vh - 140px)"
       styleClass="tabla-saneamientos"
       sortMode="single"
     >
@@ -128,12 +138,14 @@
 </div>
 
 <!-- MODAL -->
-<app-sanitation-report-view
-  [visible]="mostrarReporte"
-  (onClose)="mostrarReporte = false"
-  [header]="reporte?.header"
-  [steps]="steps"
-  [chartTemperatura]="chartTemperatura"
-  [chartConcentracion]="chartConcentracion"
-  [chartFlujo]="chartFlujo">
-</app-sanitation-report-view>
+@if (mostrarReporte) {
+  <app-sanitation-report-view
+    [visible]="mostrarReporte"
+    (onClose)="cerrarReporte()"
+    [header]="reporte?.header"
+    [steps]="steps"
+    [chartTemperatura]="chartTemperatura"
+    [chartConcentracion]="chartConcentracion"
+    [chartFlujo]="chartFlujo">
+  </app-sanitation-report-view>
+}

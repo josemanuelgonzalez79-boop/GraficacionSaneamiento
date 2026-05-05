@@ -86,17 +86,25 @@
           <div class="panel-interaccion no-pdf">
             <div class="modo-opciones">
               <label>
-                <input type="radio" name="modoGrafica" checked>
+                <input
+                  type="radio"
+                  name="modoGrafica"
+                  [value]="'zoom'"
+                  [(ngModel)]="modoGrafica">
                 Modo Zoom
               </label>
 
               <label>
-                <input type="radio" name="modoGrafica">
+                <input
+                  type="radio"
+                  name="modoGrafica"
+                  [value]="'seleccion'"
+                  [(ngModel)]="modoGrafica">
                 Modo Selección
               </label>
             </div>
 
-            <button type="button" class="btn-reset">
+            <button type="button" class="btn-reset" (click)="resetInteraccion()">
               Reset
             </button>
           </div>
@@ -108,12 +116,12 @@
 
           <div class="chart-container">
             <h3>Concentración</h3>
-            <p-chart type="line" [data]="chartConcentracion" [options]="chartOptions" [plugins]="chartPlugins"></p-chart>>
+            <p-chart type="line" [data]="chartConcentracion" [options]="chartOptions" [plugins]="chartPlugins"></p-chart>
           </div>
 
           <div class="chart-container">
             <h3>Flujo</h3>
-            <p-chart type="line" [data]="chartFlujo" [options]="chartOptions" [plugins]="chartPlugins"></p-chart>>
+            <p-chart type="line" [data]="chartFlujo" [options]="chartOptions" [plugins]="chartPlugins"></p-chart>
           </div>
 
         </div>

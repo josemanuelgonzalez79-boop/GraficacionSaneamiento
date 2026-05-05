@@ -162,7 +162,6 @@ export class GeneraGraficaSaneamientos implements OnInit {
           Array.isArray(resp.data?.procesos) ? resp.data.procesos :
           [];
 
-        // 🔥 DEBUG CLAVE
         console.log('LISTA COMPLETA:', lista);
         console.log('PRIMER ITEM:', lista[0]);
         console.log('DURATION DEL PRIMER ITEM:', lista[0]?.duration);
@@ -179,7 +178,6 @@ export class GeneraGraficaSaneamientos implements OnInit {
           receta: item.recipeName,
           usuario: item.userName,
 
-          // 🔥 CLAVE
           duracion: item.duration
         }));
 
@@ -198,6 +196,9 @@ export class GeneraGraficaSaneamientos implements OnInit {
       return;
     }
 
+    this.mostrarReporte = false;
+    this.limpiarDatosReporte();
+
     this.graficasService.SanitationReport(this.registroSeleccionado.id).subscribe({
       next: (resp) => {
 
@@ -211,8 +212,26 @@ export class GeneraGraficaSaneamientos implements OnInit {
 
         this.mostrarReporte = true;
 
+      },
+      error: (err) => {
+        console.error('Error al generar reporte', err);
       }
     });
+  }
+
+  cerrarReporte(): void {
+    this.mostrarReporte = false;
+    this.limpiarDatosReporte();
+  }
+
+  private limpiarDatosReporte(): void {
+    this.reporte = null;
+    this.steps = [];
+    this.rawData = [];
+
+    this.chartTemperatura = null;
+    this.chartConcentracion = null;
+    this.chartFlujo = null;
   }
 
   private procesarGraficas(): void {

@@ -1,18 +1,18 @@
-import { Component, Input, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
-import { ChartModule } from 'primeng/chart';
-import { ButtonModule } from 'primeng/button';
-import { CommonModule } from '@angular/common';
+import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, OnInit } from '@angular/core';
 import { QueryList, ViewChildren } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ChartModule } from 'primeng/chart';
 import { UIChart } from 'primeng/chart';
-
+import { ButtonModule } from 'primeng/button';
 @Component({
   selector: 'app-sanitation-report-view',
   standalone: true,
-  imports: [CommonModule, ChartModule, ButtonModule],
+  imports: [CommonModule, ChartModule, ButtonModule, FormsModule],
   templateUrl: './sanitation-report-view.component.html',
   styleUrls: ['./sanitation-report-view.component.scss']
 })
-export class SanitationReportView {
+export class SanitationReportView implements OnInit{
   @Input() visible = false;
   @Input() header: any;
   @Input() steps: any[] = [];
@@ -28,62 +28,98 @@ export class SanitationReportView {
 
   etapaSeleccionada: any = null;
 
+  puntosSeleccionados: number[] = [];
+
+  modoGrafica: 'zoom' | 'seleccion' | null = null;
+
   chartPlugins = [
     {
       id: 'etapaSeleccionadaPlugin',
       beforeDatasetsDraw: (chart: any) => {
 
-        if (!this.etapaSeleccionada || !this.steps?.length) return;
-
-        const totalSegundos = this.steps.reduce(
-          (acc, p) => acc + (p.duracionSegundos || 0),
-          0
-        );
-
-        let inicioSegundos = 0;
-
-        for (const paso of this.steps) {
-          if (paso.step == this.etapaSeleccionada.step) break;
-          inicioSegundos += paso.duracionSegundos || 0;
-        }
-
-        const finSegundos =
-          inicioSegundos + (this.etapaSeleccionada.duracionSegundos || 0);
-
-        const { ctx, chartArea } = chart;
+        const { ctx, chartArea, scales } = chart;
 
         if (!chartArea) return;
 
-        const ancho = chartArea.right - chartArea.left;
-
-        const xInicio =
-          chartArea.left + (inicioSegundos / totalSegundos) * ancho;
-
-        const xFin =
-          chartArea.left + (finSegundos / totalSegundos) * ancho;
-
         ctx.save();
 
-        ctx.fillStyle = 'rgba(59, 130, 246, 0.12)';
-        ctx.strokeStyle = '#2563eb'; 
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(xInicio, chartArea.top);
-        ctx.lineTo(xInicio, chartArea.bottom);
-        ctx.moveTo(xFin, chartArea.top);
-        ctx.lineTo(xFin, chartArea.bottom);
-        ctx.stroke();
-        ctx.fillRect(
-          xInicio,
-          chartArea.top,
-          xFin - xInicio,
-          chartArea.bottom - chartArea.top
-        );
+        // RANGO DE ETAPA SELECCIONADA
+        if (this.etapaSeleccionada && this.steps?.length) {
+
+          const totalSegundos = this.steps.reduce(
+            (acc, p) => acc + (p.duracionSegundos || 0),
+            0
+          );
+
+          if (totalSegundos > 0) {
+
+            let inicioSegundos = 0;
+
+            for (const paso of this.steps) {
+              if (paso.step == this.etapaSeleccionada.step) break;
+              inicioSegundos += paso.duracionSegundos || 0;
+            }
+
+            const finSegundos =
+              inicioSegundos + (this.etapaSeleccionada.duracionSegundos || 0);
+
+            const ancho = chartArea.right - chartArea.left;
+
+            const xInicio =
+              chartArea.left + (inicioSegundos / totalSegundos) * ancho;
+
+            const xFin =
+              chartArea.left + (finSegundos / totalSegundos) * ancho;
+
+            ctx.fillStyle = 'rgba(59, 130, 246, 0.12)';
+            ctx.fillRect(
+              xInicio,
+              chartArea.top,
+              xFin - xInicio,
+              chartArea.bottom - chartArea.top
+            );
+
+            ctx.strokeStyle = '#2563eb';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([]);
+
+            ctx.beginPath();
+            ctx.moveTo(xInicio, chartArea.top);
+            ctx.lineTo(xInicio, chartArea.bottom);
+            ctx.moveTo(xFin, chartArea.top);
+            ctx.lineTo(xFin, chartArea.bottom);
+            ctx.stroke();
+          }
+        }
+
+        // LÍNEAS DE PUNTOS SELECCIONADOS
+        if (this.puntosSeleccionados?.length && scales?.x) {
+
+          this.puntosSeleccionados.forEach(index => {
+
+            const x = scales.x.getPixelForValue(index);
+
+            ctx.beginPath();
+            ctx.setLineDash([6, 4]);
+            ctx.strokeStyle = '#111827';
+            ctx.lineWidth = 1.5;
+
+            ctx.moveTo(x, chartArea.top);
+            ctx.lineTo(x, chartArea.bottom);
+            ctx.stroke();
+
+            ctx.setLineDash([]);
+          });
+        }
 
         ctx.restore();
       }
     }
   ];
+
+  ngOnInit(): void {
+    this.modoGrafica = null;
+  }
 
   seleccionarEtapa(paso: any): void {
     if (this.etapaSeleccionada?.step == paso.step) {
@@ -99,14 +135,61 @@ export class SanitationReportView {
     });
   }
 
+  seleccionarPuntoGrafica(event: any, chart: any): void {
+    if (this.modoGrafica !== 'seleccion') return;
+
+    const puntos = chart.getElementsAtEventForMode(
+      event,
+      'nearest',
+      { intersect: false, axis: 'x' },
+      false
+    );
+
+    if (!puntos.length) return;
+
+    const index = puntos[0].index;
+
+    if (this.puntosSeleccionados.includes(index)) {
+      this.puntosSeleccionados = this.puntosSeleccionados.filter(i => i !== index);
+    } else {
+      this.puntosSeleccionados.push(index);
+    }
+    this.actualizarGraficas();
+  }
+
+  resetInteraccion(): void {
+    this.modoGrafica = null;
+    this.etapaSeleccionada = null;
+    this.puntosSeleccionados = [];
+    this.actualizarGraficas();
+  }
+
+  actualizarGraficas(): void {
+    setTimeout(() => {
+      this.charts?.forEach(chart => {
+        chart.chart?.update();
+      });
+    });
+  }
+
   chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
+
+    onClick: (event: any, elements: any[], chart: any) => {
+      this.seleccionarPuntoGrafica(event, chart);
+    },
+
     plugins: {
       legend: {
         position: 'top'
+      },
+      tooltip: {
+        mode: 'index',
+        intersect: false
       }
     },
+
     scales: {
       x: {
         ticks: {
