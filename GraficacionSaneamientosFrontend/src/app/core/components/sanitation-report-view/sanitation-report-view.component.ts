@@ -5,6 +5,10 @@ import { FormsModule } from '@angular/forms';
 import { ChartModule } from 'primeng/chart';
 import { UIChart } from 'primeng/chart';
 import { ButtonModule } from 'primeng/button';
+import zoomPlugin from 'chartjs-plugin-zoom';
+import { Chart } from 'chart.js';
+
+Chart.register(zoomPlugin);
 @Component({
   selector: 'app-sanitation-report-view',
   standalone: true,
@@ -92,7 +96,6 @@ export class SanitationReportView implements OnInit{
           }
         }
 
-        // LÍNEAS DE PUNTOS SELECCIONADOS
         if (this.puntosSeleccionados?.length && scales?.x) {
 
           this.puntosSeleccionados.forEach(index => {
@@ -161,6 +164,73 @@ export class SanitationReportView implements OnInit{
     this.modoGrafica = null;
     this.etapaSeleccionada = null;
     this.puntosSeleccionados = [];
+
+    setTimeout(() => {
+      this.charts?.forEach(chartRef => {
+        const chart = chartRef.chart as any;
+
+        if (!chart) return;
+
+        chart.resetZoom?.('none');
+
+        if (chart.options?.scales?.x) {
+          delete chart.options.scales.x.min;
+          delete chart.options.scales.x.max;
+        }
+
+        chart.update('none');
+      });
+
+      this.chartOptions = {
+        ...this.chartOptions,
+        plugins: {
+          ...this.chartOptions.plugins,
+          zoom: {
+            pan: {
+              enabled: false,
+              mode: 'x'
+            },
+            zoom: {
+              wheel: {
+                enabled: false
+              },
+              pinch: {
+                enabled: false
+              },
+              mode: 'x'
+            }
+          }
+        }
+      };
+
+      this.actualizarGraficas();
+    });
+  }
+
+  cambiarModo(modo: 'zoom' | 'seleccion'): void {
+    this.modoGrafica = modo;
+    const zoomActivo = this.modoGrafica === 'zoom';
+    this.chartOptions = {
+      ...this.chartOptions,
+      plugins: {
+        ...this.chartOptions.plugins,
+        zoom: {
+          pan: {
+            enabled: zoomActivo,
+            mode: 'x'
+          },
+          zoom: {
+            wheel: {
+              enabled: zoomActivo
+            },
+            pinch: {
+              enabled: zoomActivo
+            },
+            mode: 'x'
+          }
+        }
+      }
+    };
     this.actualizarGraficas();
   }
 
@@ -187,6 +257,22 @@ export class SanitationReportView implements OnInit{
       tooltip: {
         mode: 'index',
         intersect: false
+      },
+
+      zoom: {
+        pan: {
+          enabled: false,
+          mode: 'x'
+        },
+        zoom: {
+          wheel: {
+            enabled: false
+          },
+          pinch: {
+            enabled: false
+          },
+          mode: 'x'
+        }
       }
     },
 

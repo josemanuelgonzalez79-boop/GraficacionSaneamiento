@@ -89,8 +89,8 @@
                 <input
                   type="radio"
                   name="modoGrafica"
-                  [value]="'zoom'"
-                  [(ngModel)]="modoGrafica">
+                  [checked]="modoGrafica === 'zoom'"
+                  (change)="cambiarModo('zoom')">
                 Modo Zoom
               </label>
 
@@ -98,8 +98,8 @@
                 <input
                   type="radio"
                   name="modoGrafica"
-                  [value]="'seleccion'"
-                  [(ngModel)]="modoGrafica">
+                  [checked]="modoGrafica === 'seleccion'"
+                  (change)="cambiarModo('seleccion')">
                 Modo Selección
               </label>
             </div>
