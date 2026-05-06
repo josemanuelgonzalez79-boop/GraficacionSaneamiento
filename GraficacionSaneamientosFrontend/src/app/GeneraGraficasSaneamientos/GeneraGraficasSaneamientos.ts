@@ -74,7 +74,6 @@ export class GeneraGraficaSaneamientos implements OnInit {
   cargarObjetos(): void {
     this.graficasService.GetObjects().subscribe({
       next: (resp) => {
-        console.log('Objetos completos:', resp);
 
         const lista =
           Array.isArray(resp.data) ? resp.data :
@@ -99,7 +98,6 @@ export class GeneraGraficaSaneamientos implements OnInit {
   cargarRecetas(): void {
     this.graficasService.GetRecipes().subscribe({
       next: (resp) => {
-        console.log('Recetas completas:', resp);
 
         const lista =
           Array.isArray(resp.data) ? resp.data :
@@ -154,17 +152,12 @@ export class GeneraGraficaSaneamientos implements OnInit {
     ).subscribe({
       next: (resp) => {
 
-        console.log('RESPUESTA BACKEND:', resp);
 
         const lista =
           Array.isArray(resp.data) ? resp.data :
           Array.isArray(resp.data?.data) ? resp.data.data :
           Array.isArray(resp.data?.procesos) ? resp.data.procesos :
           [];
-
-        console.log('LISTA COMPLETA:', lista);
-        console.log('PRIMER ITEM:', lista[0]);
-        console.log('DURATION DEL PRIMER ITEM:', lista[0]?.duration);
 
         this.registros = lista.map((item: any) => ({
           id: item.id,
@@ -181,7 +174,6 @@ export class GeneraGraficaSaneamientos implements OnInit {
           duracion: item.duration
         }));
 
-        console.log('REGISTROS FINALES:', this.registros);
       },
 
       error: (err) => {
@@ -325,7 +317,6 @@ export class GeneraGraficaSaneamientos implements OnInit {
       ]
     };
 
-    console.log("Gráficas listas");
   }
 
   cancelar(): void {
@@ -404,6 +395,5 @@ export class GeneraGraficaSaneamientos implements OnInit {
 
     // Descargar el archivo
     XLSX.writeFile(workbook, nombreArchivo);
-    console.log('Excel exportado exitosamente');
   }
 }

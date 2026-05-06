@@ -33,6 +33,7 @@ public class GraficacionSaneamientosRepository {
                 user_name,
                 start_time,
                 finish_time,
+                return_water,
                 water_accum,
                 chemical_accum
             FROM cleaning_headers
@@ -47,13 +48,14 @@ public class GraficacionSaneamientosRepository {
                 .userName(rs.getString("user_name"))
                 .startTime(rs.getTimestamp("start_time").toLocalDateTime())
                 .finishTime(rs.getTimestamp("finish_time").toLocalDateTime())
+                .returnWater(rs.getObject("return_water") != null ? ((Number) rs.getObject("return_water")).floatValue() : null)
                 .waterAccum(rs.getObject("water_accum") != null ? ((Number) rs.getObject("water_accum")).floatValue() : null)
                 .chemicalAccum(rs.getObject("chemical_accum") != null ? ((Number) rs.getObject("chemical_accum")).floatValue() : null)
                 .build()
         );
     }
 
-    public List<PasoRawEntity> obtenerPasos(Integer id, String tabla) {
+    public List<PasoRawEntity> obtenerPasos(Integer id) {
 
         String query = """
             SELECT step, update_time
@@ -72,7 +74,7 @@ public class GraficacionSaneamientosRepository {
         );
     }
 
-    public List<RegistroDatoEntity> obtenerDatosCrudos(Integer id, String tabla) {
+    public List<RegistroDatoEntity> obtenerDatosCrudos(Integer id) {
         String query = """
             SELECT update_time, sp_temp, return_temp, supply_temp,
                 sp_cond, return_cond, sp_flow, supply_flow

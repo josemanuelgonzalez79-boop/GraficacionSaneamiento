@@ -23,6 +23,7 @@ public class CabeceraReporteDTO {
     private LocalDateTime startTime;
     private LocalDateTime finishTime;
 
+    private Float returnWater;
     private Float waterAccum;
     private Float chemicalAccum;
 

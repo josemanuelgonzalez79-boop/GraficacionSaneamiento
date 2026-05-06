@@ -32,7 +32,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeSet;
 
 import lombok.RequiredArgsConstructor;
 
@@ -68,10 +67,10 @@ public class GraficasSaneamientosServiceImpl implements GraficasSaneamientosServ
             }
 
             List<PasoRawEntity> pasosRaw =
-                    saneamientosRepository.obtenerPasos(id, tabla);
+                    saneamientosRepository.obtenerPasos(id);
 
             List<RegistroDatoEntity> rawData =
-                    saneamientosRepository.obtenerDatosCrudos(id, tabla);
+                    saneamientosRepository.obtenerDatosCrudos(id);
 
             List<RegistroDatoDTO> rawDataDTO = rawData.stream()
                     .map((RegistroDatoEntity d) -> RegistroDatoDTO.builder()
