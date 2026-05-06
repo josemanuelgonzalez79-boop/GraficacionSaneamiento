@@ -158,7 +158,7 @@ export class GeneraGraficaSaneamientos implements OnInit {
           Array.isArray(resp.data?.data) ? resp.data.data :
           Array.isArray(resp.data?.procesos) ? resp.data.procesos :
           [];
-
+         
         this.registros = lista.map((item: any) => ({
           id: item.id,
 
@@ -171,7 +171,8 @@ export class GeneraGraficaSaneamientos implements OnInit {
           receta: item.recipeName,
           usuario: item.userName,
 
-          duracion: item.duration
+          duracion: item.duration,
+          aguaTratada: item.waterAccum
         }));
 
       },

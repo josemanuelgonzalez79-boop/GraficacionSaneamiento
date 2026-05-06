@@ -157,13 +157,25 @@
 .dato-tiempo {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
-  line-height: 1.4;
+  gap: 8px;
+  line-height: 1.35;
 }
 
-.dato-tiempo span {
-  display: block;
+.dato-agua {
+  grid-column: 3;
+}
+
+.fila-tiempo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+}
+
+.fila-tiempo span {
+  flex: 1;
+  white-space: nowrap;
 }
 
 .reporte-body {

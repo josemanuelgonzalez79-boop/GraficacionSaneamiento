@@ -26,12 +26,23 @@
         <div class="dato"><b>Estación:</b> {{ header?.station }}</div>
         <div class="dato"><b>Cliente:</b> Coca-Cola Grupo FEMSA, planta Coatepec</div>
         <div class="dato"><b>Circuito:</b> {{ header?.objectName }}</div>
-
         <div class="dato"><b>Receta:</b> {{ header?.recipeName }}</div>
         <div class="dato"><b>Usuario:</b> {{ header?.userName }}</div>
         <div class="dato dato-tiempo">
-          <span><b>Inicio:</b> {{ formatearFecha(header?.startTime) }}</span>
-          <span><b>Duración:</b> {{ calcularDuracion(header?.startTime, header?.finishTime) }}</span>
+          <div class="fila-tiempo">
+            <span><b>Inicio:</b> {{ formatearFecha(header?.startTime) }}</span>
+
+            <span><b>Duración:</b>
+              {{ calcularDuracion(header?.startTime, header?.finishTime) }}
+            </span>
+          </div>
+        </div>
+        <div class="dato dato-agua">
+          <div class="fila-tiempo">
+            <span><b>Agua Tratada:</b> {{ header?.waterAccum }}</span>
+
+            <span><b>Agua Recuperada:</b> {{ header?.returnWater }}</span>
+          </div>
         </div>
       </div>
 

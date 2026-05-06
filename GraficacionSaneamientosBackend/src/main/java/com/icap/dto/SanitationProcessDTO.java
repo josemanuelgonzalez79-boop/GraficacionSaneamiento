@@ -24,4 +24,6 @@ public class SanitationProcessDTO {
 
     private LocalDateTime finishTime;
     private String duration;
+
+    private Float waterAccum;
 }

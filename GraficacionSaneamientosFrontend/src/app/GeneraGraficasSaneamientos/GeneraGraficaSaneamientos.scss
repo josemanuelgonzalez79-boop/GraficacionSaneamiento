@@ -148,22 +148,25 @@
 :host ::ng-deep .tabla-saneamientos td:nth-child(1) { width: 17%; }
 
 :host ::ng-deep .tabla-saneamientos th:nth-child(2),
-:host ::ng-deep .tabla-saneamientos td:nth-child(2) { width: 8%; }
+:host ::ng-deep .tabla-saneamientos td:nth-child(2) { width: 7%; }
 
 :host ::ng-deep .tabla-saneamientos th:nth-child(3),
 :host ::ng-deep .tabla-saneamientos td:nth-child(3) { width: 9%; }
 
 :host ::ng-deep .tabla-saneamientos th:nth-child(4),
-:host ::ng-deep .tabla-saneamientos td:nth-child(4) { width: 17%; }
+:host ::ng-deep .tabla-saneamientos td:nth-child(4) { width: 15%; }
 
 :host ::ng-deep .tabla-saneamientos th:nth-child(5),
-:host ::ng-deep .tabla-saneamientos td:nth-child(5) { width: 25%; }
+:host ::ng-deep .tabla-saneamientos td:nth-child(5) { width: 17%; }
 
 :host ::ng-deep .tabla-saneamientos th:nth-child(6),
-:host ::ng-deep .tabla-saneamientos td:nth-child(6) { width: 10%; }
+:host ::ng-deep .tabla-saneamientos td:nth-child(6) { width: 9%; }
 
 :host ::ng-deep .tabla-saneamientos th:nth-child(7),
-:host ::ng-deep .tabla-saneamientos td:nth-child(7) { width: 14%; }
+:host ::ng-deep .tabla-saneamientos td:nth-child(7) { width: 11%; }
+
+:host ::ng-deep .tabla-saneamientos th:nth-child(8),
+:host ::ng-deep .tabla-saneamientos td:nth-child(8) { width: 14%; }
 
 /* SELECCIÓN */
 :host ::ng-deep .tabla-saneamientos .p-highlight td {

@@ -60,6 +60,11 @@
             Duración
             <p-sortIcon field="duracion"></p-sortIcon>
           </th>
+
+          <th pSortableColumn="aguaTratada">
+            Agua Tratada
+            <p-sortIcon field="aguaTratada"></p-sortIcon>
+          </th>
         </tr>
       </ng-template>
 
@@ -73,6 +78,7 @@
           <td>{{ registro.receta }}</td>
           <td>{{ registro.usuario }}</td>
           <td>{{ registro.duracion }}</td>
+          <td>{{ registro.aguaTratada }}</td>
         </tr>
       </ng-template>
 

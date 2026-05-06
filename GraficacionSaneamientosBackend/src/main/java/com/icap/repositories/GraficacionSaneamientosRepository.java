@@ -46,6 +46,7 @@ public class GraficacionSaneamientosRepository {
                 .objectName(rs.getString("object_name"))
                 .recipeName(rs.getString("recipe_name"))
                 .userName(rs.getString("user_name"))
+                .waterAccum(rs.getObject("water_accum") != null ? ((Number) rs.getObject("water_accum")).floatValue() : null)
                 .startTime(rs.getTimestamp("start_time").toLocalDateTime())
                 .finishTime(rs.getTimestamp("finish_time").toLocalDateTime())
                 .returnWater(rs.getObject("return_water") != null ? ((Number) rs.getObject("return_water")).floatValue() : null)
@@ -137,7 +138,8 @@ public class GraficacionSaneamientosRepository {
                 station,
                 object_name,
                 recipe_name,
-                user_name
+                user_name,
+                water_accum
             FROM cleaning_headers
             WHERE start_time <= :endDate
             AND finish_time >= :startDate
@@ -172,6 +174,7 @@ public class GraficacionSaneamientosRepository {
                 .objectName(rs.getString("object_name"))
                 .recipeName(rs.getString("recipe_name"))
                 .userName(rs.getString("user_name"))
+                .waterAccum(rs.getObject("water_accum") != null ? rs.getBigDecimal("water_accum").floatValue(): null)
                 .startTime(rs.getTimestamp("start_time").toLocalDateTime())
                 .finishTime(
                     rs.getTimestamp("finish_time") != null
