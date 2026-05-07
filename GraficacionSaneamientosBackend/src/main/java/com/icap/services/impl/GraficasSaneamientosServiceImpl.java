@@ -80,6 +80,8 @@ public class GraficasSaneamientosServiceImpl implements GraficasSaneamientosServ
                             .supplyTemp(d.getSupplyTemp())
                             .spCond(d.getSpCond())
                             .returnCond(d.getReturnCond())
+                            .spOzone(d.getSpOzone())
+                            .returnOzone(d.getReturnOzone())
                             .spFlow(d.getSpFlow())
                             .supplyFlow(d.getSupplyFlow())
                             .build())

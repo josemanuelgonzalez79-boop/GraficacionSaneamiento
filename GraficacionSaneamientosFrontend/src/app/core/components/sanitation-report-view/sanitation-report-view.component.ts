@@ -23,6 +23,7 @@ export class SanitationReportView implements OnInit{
   @Input() chartTemperatura: any;
   @Input() chartConcentracion: any;
   @Input() chartFlujo: any;
+  @Input() tituloGraficaQuimica: string = 'Concentración';
   @Output() onClose = new EventEmitter<void>();
 
   @ViewChild('reportePDF') reportePDF!: ElementRef;

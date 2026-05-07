@@ -62,6 +62,7 @@ export class GeneraGraficaSaneamientos implements OnInit {
   chartTemperatura: any;
   chartConcentracion: any;
   chartFlujo: any;
+  tituloGraficaQuimica: string = 'Concentración';
   registros: any[] = [];
 
   constructor(@Inject(GraficasService) private graficasService: GraficasService) {}
@@ -271,12 +272,37 @@ export class GeneraGraficaSaneamientos implements OnInit {
     };
 
     // CONCENTRACIÓN
+    const totalConcentracion = this.rawData.reduce(
+      (acc: number, d: any) =>
+        acc +
+        Math.abs(Number(d.spCond) || 0) +
+        Math.abs(Number(d.returnCond) || 0),
+      0
+    );
+
+    const totalOzono = this.rawData.reduce(
+      (acc: number, d: any) =>
+        acc +
+        Math.abs(Number(d.spOzone) || 0) +
+        Math.abs(Number(d.returnOzone) || 0),
+      0
+    );
+
+    const hayConcentracion = totalConcentracion > 0;
+    const hayOzono = totalOzono > 0;
+    const usarOzono = !hayConcentracion && hayOzono;
+    this.tituloGraficaQuimica = usarOzono ? 'Ozono' : 'Concentración';
+
+    // CONCENTRACIÓN / OZONO
     this.chartConcentracion = {
       labels: labels,
       datasets: [
         {
           label: 'Meta',
-          data: this.rawData.map((d: any) => d.spCond),
+          data: usarOzono
+            ? this.rawData.map((d: any) => d.spOzone)
+            : this.rawData.map((d: any) => d.spCond),
+
           borderColor: 'black',
           fill: false,
           borderWidth: 1.5,
@@ -285,7 +311,10 @@ export class GeneraGraficaSaneamientos implements OnInit {
         },
         {
           label: 'Retorno',
-          data: this.rawData.map((d: any) => d.returnCond),
+          data: usarOzono
+            ? this.rawData.map((d: any) => d.returnOzone)
+            : this.rawData.map((d: any) => d.returnCond),
+
           borderColor: 'blue',
           fill: false,
           borderWidth: 1.5,

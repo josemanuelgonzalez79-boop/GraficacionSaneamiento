@@ -78,7 +78,9 @@ public class GraficacionSaneamientosRepository {
     public List<RegistroDatoEntity> obtenerDatosCrudos(Integer id) {
         String query = """
             SELECT update_time, sp_temp, return_temp, supply_temp,
-                sp_cond, return_cond, sp_flow, supply_flow
+                sp_cond, return_cond,
+                sp_ozone, return_ozone,
+                sp_flow, supply_flow
             FROM cleaning_data WHERE id = :id ORDER BY update_time
         """;
 
@@ -92,6 +94,8 @@ public class GraficacionSaneamientosRepository {
                 asDouble(rs.getObject("supply_temp")),
                 asDouble(rs.getObject("sp_cond")),
                 asDouble(rs.getObject("return_cond")),
+                asDouble(rs.getObject("sp_ozone")),
+                asDouble(rs.getObject("return_ozone")),
                 asDouble(rs.getObject("sp_flow")),
                 asDouble(rs.getObject("supply_flow"))
             )

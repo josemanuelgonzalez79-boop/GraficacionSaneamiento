@@ -21,6 +21,9 @@ public class RegistroDatoDTO {
     private Double spCond;
     private Double returnCond;
 
+    private Double spOzone;
+    private Double returnOzone;
+
     private Double spFlow;
     private Double supplyFlow;
 }
