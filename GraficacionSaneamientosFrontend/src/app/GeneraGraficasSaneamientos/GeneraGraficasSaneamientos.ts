@@ -315,7 +315,7 @@ export class GeneraGraficaSaneamientos implements OnInit {
             ? this.rawData.map((d: any) => d.returnOzone)
             : this.rawData.map((d: any) => d.returnCond),
 
-          borderColor: 'blue',
+          borderColor: usarOzono ? '#fbc02d' : 'blue',
           fill: false,
           borderWidth: 1.5,
           pointRadius: 0
