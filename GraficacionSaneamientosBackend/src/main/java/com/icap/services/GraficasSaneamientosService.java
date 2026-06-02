@@ -11,5 +11,6 @@ public interface GraficasSaneamientosService {
     ApiResponseDTO obtenerProcesos(SanitationProcessFilterDTO filter, HttpServletResponse response);
     ApiResponseDTO obtenerRecetas(HttpServletResponse response);
     ApiResponseDTO obtenerObjetos(HttpServletResponse response);
+    ApiResponseDTO obtenerAguas(Integer id, HttpServletResponse response);
 
 }

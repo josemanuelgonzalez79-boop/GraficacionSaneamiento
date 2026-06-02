@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.icap.dto.ApiResponseDTO;
 import com.icap.dto.ObtenerPasosDTO;
+import com.icap.dto.ObtenerAguaDTO;
 import com.icap.dto.SanitationProcessFilterDTO;
 import com.icap.services.GraficasSaneamientosService;
 
@@ -54,6 +55,12 @@ public class GraficasSaneamientosController {
     public ApiResponseDTO getObjects(HttpServletResponse response){
 
         return graficasSaneamientosService.obtenerObjetos(response);
+    }
+
+    @PostMapping("getWaters")
+    public ApiResponseDTO getWaters(@RequestBody ObtenerAguaDTO data, HttpServletResponse response) {
+
+            return graficasSaneamientosService.obtenerAguas(data.getId(), response);
     }
 
 }

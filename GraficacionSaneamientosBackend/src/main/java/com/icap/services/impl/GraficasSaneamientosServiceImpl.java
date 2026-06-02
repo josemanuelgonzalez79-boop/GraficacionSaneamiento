@@ -17,6 +17,8 @@ import com.icap.repositories.GraficacionSaneamientosRepository;
 import com.icap.services.GraficasSaneamientosService;
 import com.icap.utils.LogUtil;
 import java.util.Comparator;
+import com.icap.entities.CleaningWatersEntity;
+
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -249,6 +251,33 @@ public class GraficasSaneamientosServiceImpl implements GraficasSaneamientosServ
         } catch (Exception e) {
 
             log.grabar(FALLO, "OBTENER_OBJETOS", e.getMessage());
+
+            return ApiResponseDTO.builder()
+                    .meta(META_ERROR.getMeta())
+                    .build();
+        }
+    }
+
+    @Override
+    public ApiResponseDTO obtenerAguas(Integer id, HttpServletResponse response) {
+
+        log.grabar(INICIA_TRANSACCION, "OBTENER_AGUAS", "");
+
+        try {
+
+            List<CleaningWatersEntity> aguas =
+                    saneamientosRepository.obtenerAguas(id);
+
+            log.grabar(FINALIZA_TRANSACCION, "OBTENER_AGUAS", "");
+
+            return ApiResponseDTO.builder()
+                    .meta(META_OK.getMeta())
+                    .data(aguas)
+                    .build();
+
+        } catch (Exception e) {
+
+            log.grabar(FALLO, "OBTENER_AGUAS", e.getMessage());
 
             return ApiResponseDTO.builder()
                     .meta(META_ERROR.getMeta())

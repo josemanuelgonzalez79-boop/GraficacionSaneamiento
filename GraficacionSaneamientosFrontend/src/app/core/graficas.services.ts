@@ -47,4 +47,12 @@ export class GraficasService {
 
         return this.http.get<ApiResponseDTO>(constGraficasUrl);
     }
+
+    GetWaters(id: number): Observable<ApiResponseDTO> {
+
+        const constGraficasUrl = `${this.graficasUrl}getWaters`;
+
+        return this.http.post<ApiResponseDTO>(constGraficasUrl, {id});
+    }
+
 }
