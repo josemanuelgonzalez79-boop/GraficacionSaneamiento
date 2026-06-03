@@ -1,5 +1,16 @@
-import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, OnInit } from '@angular/core';
-import { QueryList, ViewChildren } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  ViewChild,
+  ElementRef,
+  OnInit,
+  OnChanges,
+  SimpleChanges
+} from '@angular/core';
+
+import { ViewChildren, QueryList } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ChartModule } from 'primeng/chart';
@@ -9,6 +20,7 @@ import zoomPlugin from 'chartjs-plugin-zoom';
 import { Chart } from 'chart.js';
 
 Chart.register(zoomPlugin);
+
 @Component({
   selector: 'app-sanitation-report-view',
   standalone: true,
@@ -16,14 +28,17 @@ Chart.register(zoomPlugin);
   templateUrl: './sanitation-report-view.component.html',
   styleUrls: ['./sanitation-report-view.component.scss']
 })
-export class SanitationReportView implements OnInit{
+export class SanitationReportView implements OnInit, OnChanges {
+
   @Input() visible = false;
   @Input() header: any;
   @Input() steps: any[] = [];
+  @Input() waters: any = null;
   @Input() chartTemperatura: any;
   @Input() chartConcentracion: any;
   @Input() chartFlujo: any;
   @Input() tituloGraficaQuimica: string = 'Concentración';
+
   @Output() onClose = new EventEmitter<void>();
 
   @ViewChild('reportePDF') reportePDF!: ElementRef;
@@ -36,6 +51,37 @@ export class SanitationReportView implements OnInit{
   puntosSeleccionados: number[] = [];
 
   modoGrafica: 'zoom' | 'seleccion' | null = null;
+
+  chartWaters: any = {
+    labels: [],
+    datasets: [
+      {
+        data: [],
+        backgroundColor: ['#2563eb', '#f59e0b', '#10b981'],
+        hoverBackgroundColor: ['#1d4ed8', '#d97706', '#059669']
+      }
+    ]
+  };
+
+  chartPieOptions: any = {
+    responsive: true,
+    maintainAspectRatio: false,
+    events: ['mousemove', 'mouseout', 'touchmove', 'touchend'],
+    onClick: () => {},
+    plugins: {
+      legend: {
+        position: 'top',
+        onClick: () => {}
+      },
+      tooltip: {
+        callbacks: {
+          label: (context: any) => {
+            return context.label || '';
+          }
+        }
+      }
+    }
+  };
 
   chartPlugins = [
     {
@@ -121,128 +167,6 @@ export class SanitationReportView implements OnInit{
     }
   ];
 
-  ngOnInit(): void {
-    this.modoGrafica = null;
-  }
-
-  seleccionarEtapa(paso: any): void {
-    if (this.etapaSeleccionada?.step == paso.step) {
-      this.etapaSeleccionada = null;
-    } else {
-      this.etapaSeleccionada = paso;
-    }
-
-    setTimeout(() => {
-      this.charts?.forEach(chart => {
-        chart.chart?.update();
-      });
-    });
-  }
-
-  seleccionarPuntoGrafica(event: any, chart: any): void {
-    if (this.modoGrafica !== 'seleccion') return;
-
-    const puntos = chart.getElementsAtEventForMode(
-      event,
-      'nearest',
-      { intersect: false, axis: 'x' },
-      false
-    );
-
-    if (!puntos.length) return;
-
-    const index = puntos[0].index;
-
-    if (this.puntosSeleccionados.includes(index)) {
-      this.puntosSeleccionados = this.puntosSeleccionados.filter(i => i !== index);
-    } else {
-      this.puntosSeleccionados.push(index);
-    }
-    this.actualizarGraficas();
-  }
-
-  resetInteraccion(): void {
-    this.modoGrafica = null;
-    this.etapaSeleccionada = null;
-    this.puntosSeleccionados = [];
-
-    setTimeout(() => {
-      this.charts?.forEach(chartRef => {
-        const chart = chartRef.chart as any;
-
-        if (!chart) return;
-
-        chart.resetZoom?.('none');
-
-        if (chart.options?.scales?.x) {
-          delete chart.options.scales.x.min;
-          delete chart.options.scales.x.max;
-        }
-
-        chart.update('none');
-      });
-
-      this.chartOptions = {
-        ...this.chartOptions,
-        plugins: {
-          ...this.chartOptions.plugins,
-          zoom: {
-            pan: {
-              enabled: false,
-              mode: 'x'
-            },
-            zoom: {
-              wheel: {
-                enabled: false
-              },
-              pinch: {
-                enabled: false
-              },
-              mode: 'x'
-            }
-          }
-        }
-      };
-
-      this.actualizarGraficas();
-    });
-  }
-
-  cambiarModo(modo: 'zoom' | 'seleccion'): void {
-    this.modoGrafica = modo;
-    const zoomActivo = this.modoGrafica === 'zoom';
-    this.chartOptions = {
-      ...this.chartOptions,
-      plugins: {
-        ...this.chartOptions.plugins,
-        zoom: {
-          pan: {
-            enabled: zoomActivo,
-            mode: 'x'
-          },
-          zoom: {
-            wheel: {
-              enabled: zoomActivo
-            },
-            pinch: {
-              enabled: zoomActivo
-            },
-            mode: 'x'
-          }
-        }
-      }
-    };
-    this.actualizarGraficas();
-  }
-
-  actualizarGraficas(): void {
-    setTimeout(() => {
-      this.charts?.forEach(chart => {
-        chart.chart?.update();
-      });
-    });
-  }
-
   chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -300,7 +224,180 @@ export class SanitationReportView implements OnInit{
     }
   };
 
-  cerrar() {
+  ngOnInit(): void {
+    this.modoGrafica = null;
+    this.generarGraficaAgua();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['header']) {
+      this.generarGraficaAgua();
+    }
+  }
+
+  private generarGraficaAgua(): void {
+    const treated = Number(this.header?.waterAccum || 0);
+    const recoveredSent = Number(this.header?.recoveredWaterSent || 0);
+    const recoveredReceived = Number(this.header?.returnWater || 0);
+
+    this.chartWaters = {
+      labels: [
+        `Agua Tratada Enviada: ${treated}`,
+        `Agua Recuperada Enviada: ${recoveredSent}`,
+        `Agua Recuperada Recibida: ${recoveredReceived}`
+      ],
+      datasets: [
+        {
+          data: [treated, recoveredSent, recoveredReceived],
+          backgroundColor: ['#2563eb', '#f59e0b', '#10b981'],
+          hoverBackgroundColor: ['#1d4ed8', '#d97706', '#059669']
+        }
+      ]
+    };
+  }
+
+  private esGraficaPastel(chart: any): boolean {
+    const type = chart?.config?.type || chart?.options?.type || chart?.type;
+    return type === 'pie' || type === 'doughnut';
+  }
+
+  seleccionarEtapa(paso: any): void {
+    if (this.etapaSeleccionada?.step == paso.step) {
+      this.etapaSeleccionada = null;
+    } else {
+      this.etapaSeleccionada = paso;
+    }
+
+    setTimeout(() => {
+      this.charts?.forEach(chartRef => {
+        const chart = chartRef.chart as any;
+
+        if (!chart) return;
+
+        if (this.esGraficaPastel(chart)) return;
+
+        chart.update();
+      });
+    });
+  }
+
+  seleccionarPuntoGrafica(event: any, chart: any): void {
+    if (this.modoGrafica !== 'seleccion') return;
+
+    const puntos = chart.getElementsAtEventForMode(
+      event,
+      'nearest',
+      { intersect: false, axis: 'x' },
+      false
+    );
+
+    if (!puntos.length) return;
+
+    const index = puntos[0].index;
+
+    if (this.puntosSeleccionados.includes(index)) {
+      this.puntosSeleccionados = this.puntosSeleccionados.filter(i => i !== index);
+    } else {
+      this.puntosSeleccionados.push(index);
+    }
+
+    this.actualizarGraficas();
+  }
+
+  resetInteraccion(): void {
+    this.modoGrafica = null;
+    this.etapaSeleccionada = null;
+    this.puntosSeleccionados = [];
+
+    setTimeout(() => {
+      this.charts?.forEach(chartRef => {
+        const chart = chartRef.chart as any;
+
+        if (!chart) return;
+
+        if (this.esGraficaPastel(chart)) return;
+
+        chart.resetZoom?.('none');
+
+        if (chart.options?.scales?.x) {
+          delete chart.options.scales.x.min;
+          delete chart.options.scales.x.max;
+        }
+
+        chart.update('none');
+      });
+
+      this.chartOptions = {
+        ...this.chartOptions,
+        plugins: {
+          ...this.chartOptions.plugins,
+          zoom: {
+            pan: {
+              enabled: false,
+              mode: 'x'
+            },
+            zoom: {
+              wheel: {
+                enabled: false
+              },
+              pinch: {
+                enabled: false
+              },
+              mode: 'x'
+            }
+          }
+        }
+      };
+
+      this.actualizarGraficas();
+    });
+  }
+
+  cambiarModo(modo: 'zoom' | 'seleccion'): void {
+    this.modoGrafica = modo;
+
+    const zoomActivo = this.modoGrafica === 'zoom';
+
+    this.chartOptions = {
+      ...this.chartOptions,
+      plugins: {
+        ...this.chartOptions.plugins,
+        zoom: {
+          pan: {
+            enabled: zoomActivo,
+            mode: 'x'
+          },
+          zoom: {
+            wheel: {
+              enabled: zoomActivo
+            },
+            pinch: {
+              enabled: zoomActivo
+            },
+            mode: 'x'
+          }
+        }
+      }
+    };
+
+    this.actualizarGraficas();
+  }
+
+  actualizarGraficas(): void {
+    setTimeout(() => {
+      this.charts?.forEach(chartRef => {
+        const chart = chartRef.chart as any;
+
+        if (!chart) return;
+
+        if (this.esGraficaPastel(chart)) return;
+
+        chart.update();
+      });
+    });
+  }
+
+  cerrar(): void {
     this.onClose.emit();
   }
 
@@ -319,7 +416,9 @@ export class SanitationReportView implements OnInit{
       const html2canvas = (await import('html2canvas')).default;
 
       const pdf = new jsPDF('l', 'mm', 'a4');
+
       reportElement = this.reportePDF.nativeElement as HTMLElement;
+
       originalWidth = reportElement.style.width;
       originalMaxWidth = reportElement.style.maxWidth;
       originalMargin = reportElement.style.margin;
@@ -330,12 +429,20 @@ export class SanitationReportView implements OnInit{
 
       await new Promise(resolve => setTimeout(resolve, 500));
 
-      const chartElements = Array.from(reportElement.querySelectorAll('.chart-container')) as HTMLElement[];
+      const chartElements = Array.from(
+        reportElement.querySelectorAll('.chart-container')
+      ) as HTMLElement[];
+
       const parentRect = reportElement.getBoundingClientRect();
+
       const chartBlocks = chartElements.map(el => {
         const rect = el.getBoundingClientRect();
         const top = Math.max(0, rect.top - parentRect.top);
-        return { start: Math.round(top), end: Math.round(top + rect.height) };
+
+        return {
+          start: Math.round(top),
+          end: Math.round(top + rect.height)
+        };
       });
 
       const canvas = await html2canvas(reportElement, {
@@ -358,10 +465,13 @@ export class SanitationReportView implements OnInit{
 
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
+
       const imgWidth = pageWidth - 20;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
       const maxPageHeight = pageHeight - 20;
       const scale = canvas.width / reportElement.scrollWidth;
+
       const scaledChartBlocks = chartBlocks.map(block => ({
         start: Math.floor(block.start * scale),
         end: Math.ceil(block.end * scale)
@@ -372,6 +482,7 @@ export class SanitationReportView implements OnInit{
         pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
       } else {
         const pixelsPerPage = Math.floor((canvas.width * maxPageHeight) / imgWidth);
+
         let remainingHeight = canvas.height;
         let pageOffset = 0;
         let firstPage = true;
@@ -380,17 +491,24 @@ export class SanitationReportView implements OnInit{
           let pageCanvasHeight = Math.min(pixelsPerPage, remainingHeight);
           let sliceEnd = pageOffset + pageCanvasHeight;
 
-          const blockingChart = scaledChartBlocks.find(chart => chart.start > pageOffset && chart.start < sliceEnd && chart.end > sliceEnd);
+          const blockingChart = scaledChartBlocks.find(chart =>
+            chart.start > pageOffset &&
+            chart.start < sliceEnd &&
+            chart.end > sliceEnd
+          );
+
           if (blockingChart) {
             sliceEnd = blockingChart.start;
             pageCanvasHeight = Math.max(1, sliceEnd - pageOffset);
           }
 
           const pageCanvas = document.createElement('canvas');
+
           pageCanvas.width = canvas.width;
           pageCanvas.height = pageCanvasHeight;
 
           const pageCtx = pageCanvas.getContext('2d');
+
           if (pageCtx) {
             pageCtx.drawImage(
               canvas,
@@ -406,11 +524,13 @@ export class SanitationReportView implements OnInit{
           }
 
           const pageImgData = pageCanvas.toDataURL('image/png');
+
           if (!firstPage) {
             pdf.addPage();
           }
 
           const pageImgHeight = (pageCanvasHeight * imgWidth) / canvas.width;
+
           pdf.addImage(pageImgData, 'PNG', 10, 10, imgWidth, pageImgHeight);
 
           firstPage = false;
@@ -420,7 +540,9 @@ export class SanitationReportView implements OnInit{
       }
 
       const proceso = this.header?.id ?? 'sin-id';
+
       pdf.save(`reporte-proceso-${proceso}.pdf`);
+
     } catch (error) {
       console.error('Error exportando PDF:', error);
     } finally {
@@ -429,6 +551,7 @@ export class SanitationReportView implements OnInit{
         reportElement.style.maxWidth = originalMaxWidth;
         reportElement.style.margin = originalMargin;
       }
+
       this.exportandoPDF = false;
     }
   }
@@ -436,7 +559,10 @@ export class SanitationReportView implements OnInit{
   getPasosNormalizados() {
     if (!this.steps || this.steps.length === 0) return [];
 
-    const total = this.steps.reduce((sum, p) => sum + (p.duracionSegundos || 0), 0);
+    const total = this.steps.reduce(
+      (sum, p) => sum + (p.duracionSegundos || 0),
+      0
+    );
 
     return this.steps.map(p => ({
       ...p,
@@ -451,6 +577,87 @@ export class SanitationReportView implements OnInit{
     const sec = segundos % 60;
 
     return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+  }
+
+  getWaterRecoveryRows() {
+    if (!this.waters) return [];
+
+    const stepsMap = (this.steps || []).reduce((map: any, paso: any) => {
+      const key = String(paso?.step ?? '');
+
+      if (key) {
+        map[key] = paso?.descripcion ?? paso?.description ?? '';
+      }
+
+      return map;
+    }, {} as Record<string, string>);
+
+    const padIndex = (index: number) => String(index).padStart(2, '0');
+    const getValue = (key: string) => Number(this.waters[key] || 0);
+
+    const rows: any[] = [];
+
+    const treatedFirst = getValue('treatedWater01');
+    const recoveredFirst = getValue('recoveredWater01');
+    const sentFirst = getValue('recoveredWaterSent');
+
+    if (treatedFirst > 0 || recoveredFirst > 0 || sentFirst > 0) {
+      rows.push({
+        step: 1,
+        descripcion: stepsMap['1'] ?? 'Etapa 1',
+        aguaTratadaEnviada: treatedFirst || '',
+        aguaRecuperadaRecibida: recoveredFirst || '',
+        aguaRecuperadaEnviada: sentFirst || ''
+      });
+    }
+
+    for (let index = 2; index <= 16; index++) {
+      const treated = getValue(`treatedWater${padIndex(index)}`);
+      const recovered = getValue(`recoveredWater${padIndex(index)}`);
+
+      if (treated > 0 || recovered > 0) {
+        rows.push({
+          step: index,
+          descripcion: stepsMap[String(index)] ?? `Etapa ${index}`,
+          aguaTratadaEnviada: treated || '',
+          aguaRecuperadaRecibida: recovered || '',
+          aguaRecuperadaEnviada: ''
+        });
+      }
+    }
+
+    return rows;
+  }
+
+  private getWaterTotals() {
+    if (!this.waters) {
+      return {
+        treated: 0,
+        recoveredReceived: 0,
+        recoveredSent: 0
+      };
+    }
+
+    const padIndex = (index: number) => String(index).padStart(2, '0');
+    const getValue = (key: string) => Number(this.waters[key] || 0);
+
+    const treated = Array.from(
+      { length: 16 },
+      (_, i) => getValue(`treatedWater${padIndex(i + 1)}`)
+    ).reduce((sum, value) => sum + value, 0);
+
+    const recoveredReceived = Array.from(
+      { length: 16 },
+      (_, i) => getValue(`recoveredWater${padIndex(i + 1)}`)
+    ).reduce((sum, value) => sum + value, 0);
+
+    const recoveredSent = getValue('recoveredWaterSent');
+
+    return {
+      treated,
+      recoveredReceived,
+      recoveredSent
+    };
   }
 
   formatearFecha(fecha: string): string {

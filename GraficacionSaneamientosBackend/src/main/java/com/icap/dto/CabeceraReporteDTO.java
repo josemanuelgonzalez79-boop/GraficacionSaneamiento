@@ -26,5 +26,5 @@ public class CabeceraReporteDTO {
     private Float returnWater;
     private Float waterAccum;
     private Float chemicalAccum;
-
+    private Float recoveredWaterSent;
 }

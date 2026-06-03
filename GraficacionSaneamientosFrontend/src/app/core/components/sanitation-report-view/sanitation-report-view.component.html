@@ -23,55 +23,90 @@
       </div>
 
       <div class="cabecera-grid">
-        <div class="dato"><b>Estación:</b> {{ header?.station }}</div>
-        <div class="dato"><b>Cliente:</b> Coca-Cola Grupo FEMSA, planta Coatepec</div>
-        <div class="dato"><b>Circuito:</b> {{ header?.objectName }}</div>
-        <div class="dato"><b>Receta:</b> {{ header?.recipeName }}</div>
-        <div class="dato"><b>Usuario:</b> {{ header?.userName }}</div>
+
+        <div class="dato">
+          <b>Estación:</b> {{ header?.station }}
+        </div>
+
+        <div class="dato">
+          <b>Cliente:</b> Coca-Cola Grupo FEMSA, planta Coatepec
+        </div>
+
+        <div class="dato">
+          <b>Circuito:</b> {{ header?.objectName }}
+        </div>
+
+        <div class="dato">
+          <b>Receta:</b> {{ header?.recipeName }}
+        </div>
+
+        <div class="dato">
+          <b>Usuario:</b> {{ header?.userName }}
+        </div>
+
         <div class="dato dato-tiempo">
           <div class="fila-tiempo">
-            <span><b>Inicio:</b> {{ formatearFecha(header?.startTime) }}</span>
+            <span>
+              <b>Inicio:</b> {{ formatearFecha(header?.startTime) }}
+            </span>
 
-            <span><b>Duración:</b>
+            <span>
+              <b>Duración:</b>
               {{ calcularDuracion(header?.startTime, header?.finishTime) }}
             </span>
           </div>
         </div>
+
         <div class="dato dato-agua">
           <div class="fila-tiempo">
-            <span><b>Agua Tratada:</b> {{ header?.waterAccum }}</span>
+            <span>
+              <b>Agua Tratada Enviada:</b> {{ header?.waterAccum }}
+            </span>
 
-            <span><b>Agua Recuperada:</b> {{ header?.returnWater }}</span>
+            <span>
+              <b>Agua Recuperada Enviada:</b> {{ header?.recoveredWaterSent }}
+            </span>
+
+            <span>
+              <b>Agua Recuperada Recibida:</b> {{ header?.returnWater }}
+            </span>
           </div>
         </div>
+
       </div>
 
       <div class="reporte-body">
 
         <div class="columna-izquierda">
+
           <div class="bloque">
             <h3>Etapas del proceso</h3>
 
-            <table class="tabla-pasos">
-              <thead>
-                <tr>
-                  <th>Etapa</th>
-                  <th>Duración</th>
-                  <th>Descripción</th>
-                </tr>
-              </thead>
+            <div class="tabla-pasos-wrapper">
+              <table class="tabla-pasos tabla-etapas">
 
-              <tbody>
-                @for (paso of steps; track paso.step) {
+                <thead>
                   <tr>
-                    <td>{{ paso.step }}</td>
-                    <td>{{ formatearDuracion(paso.duracionSegundos) }}</td>
-                    <td>{{ paso.descripcion }}</td>
+                    <th>Etapa</th>
+                    <th>Duración</th>
+                    <th>Descripción</th>
                   </tr>
-                }
-              </tbody>
-            </table>
+                </thead>
+
+                <tbody>
+                  @for (paso of steps; track paso.step) {
+                    <tr>
+                      <td>{{ paso.step }}</td>
+                      <td>{{ formatearDuracion(paso.duracionSegundos) }}</td>
+                      <td>{{ paso.descripcion }}</td>
+                    </tr>
+                  }
+                </tbody>
+
+              </table>
+            </div>
           </div>
+
         </div>
 
         <div class="columna-derecha">
@@ -96,6 +131,7 @@
 
           <div class="panel-interaccion no-pdf">
             <div class="modo-opciones">
+
               <label>
                 <input
                   type="radio"
@@ -113,6 +149,7 @@
                   (change)="cambiarModo('seleccion')">
                 Modo Selección
               </label>
+
             </div>
 
             <button type="button" class="btn-reset" (click)="resetInteraccion()">
@@ -122,22 +159,89 @@
 
           <div class="chart-container large">
             <h3>Temperatura</h3>
-            <p-chart type="line" [data]="chartTemperatura" [options]="chartOptions" [plugins]="chartPlugins"></p-chart>
+            <p-chart
+              type="line"
+              [data]="chartTemperatura"
+              [options]="chartOptions"
+              [plugins]="chartPlugins">
+            </p-chart>
           </div>
 
           <div class="chart-container">
             <h3>{{ tituloGraficaQuimica }}</h3>
-            <p-chart type="line" [data]="chartConcentracion" [options]="chartOptions" [plugins]="chartPlugins"></p-chart>
+            <p-chart
+              type="line"
+              [data]="chartConcentracion"
+              [options]="chartOptions"
+              [plugins]="chartPlugins">
+            </p-chart>
           </div>
 
           <div class="chart-container">
             <h3>Flujo</h3>
-            <p-chart type="line" [data]="chartFlujo" [options]="chartOptions" [plugins]="chartPlugins"></p-chart>
+            <p-chart
+              type="line"
+              [data]="chartFlujo"
+              [options]="chartOptions"
+              [plugins]="chartPlugins">
+            </p-chart>
           </div>
 
+          <div class="chart-container pie-container">
+            <h3>Distribución de Agua</h3>
+
+            <div class="pie-chart-wrapper">
+              <p-chart
+                type="pie"
+                [data]="chartWaters"
+                [options]="chartPieOptions"
+                (click)="$event.stopPropagation()"
+                (mousedown)="$event.stopPropagation()">
+              </p-chart>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="bloque bloque-recuperada">
+        <h3>Agua Recuperada</h3>
+
+        <div class="tabla-pasos-wrapper tabla-recuperada-large-wrapper">
+          <table class="tabla-pasos tabla-recuperada-large">
+
+            <thead>
+              <tr>
+                <th>Descripción</th>
+                <th>Agua Tratada Enviada</th>
+                <th>Agua Recuperada Enviada</th>
+                <th>Agua Recuperada Recibida</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (row of getWaterRecoveryRows(); track row.step) {
+                <tr>
+                  <td>{{ row.descripcion }}</td>
+                  <td class="num">{{ row.aguaTratadaEnviada }}</td>
+                  <td class="num">{{ row.aguaRecuperadaEnviada }}</td>
+                  <td class="num">{{ row.aguaRecuperadaRecibida }}</td>
+                </tr>
+              }
+
+              @if (getWaterRecoveryRows().length === 0) {
+                <tr>
+                  <td colspan="4">No hay datos de agua recuperada disponibles</td>
+                </tr>
+              }
+            </tbody>
+
+          </table>
         </div>
       </div>
 
     </div>
+
   </div>
 }

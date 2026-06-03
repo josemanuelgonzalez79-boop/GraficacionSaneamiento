@@ -65,7 +65,7 @@
   border-radius: 10px;
   padding: 10px 14px;
   margin: -6px 0 2px 0;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
 .modo-opciones {
@@ -136,6 +136,21 @@
     font-size: 18px;
     margin-bottom: 8px;
   }
+
+  .chart-container {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .chart-container p-chart {
+    height: auto !important;
+    min-height: 300px;
+  }
+
+  .chart-container canvas {
+    height: auto !important;
+    max-width: 100% !important;
+  }
 }
 
 .cabecera-grid {
@@ -151,7 +166,7 @@
   border-radius: 8px;
   padding: 9px 12px;
   font-size: 15px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 .dato-tiempo {
@@ -162,25 +177,27 @@
 }
 
 .dato-agua {
-  grid-column: 3;
+  grid-column: 1 / -1;
 }
 
 .fila-tiempo {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  gap: 18px;
+  gap: 12px;
   width: 100%;
 }
 
 .fila-tiempo span {
-  flex: 1;
-  white-space: nowrap;
+  flex: 1 1 180px;
+  min-width: 160px;
+  white-space: normal;
 }
 
 .reporte-body {
   display: grid;
-  grid-template-columns: 320px minmax(0, 1fr);
+  grid-template-columns: 380px minmax(0, 1fr);
   gap: 20px;
   align-items: start;
 }
@@ -212,49 +229,139 @@
   }
 }
 
+.tabla-pasos-wrapper {
+  min-height: 240px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow-x: auto;
+}
+
+.tabla-pasos-wrapper table {
+  flex: 1 1 auto;
+  width: 100%;
+  box-sizing: border-box;
+  display: table;
+  table-layout: fixed;
+  overflow: visible;
+}
+
 .tabla-pasos {
   width: 100%;
   border-collapse: collapse;
   font-size: 13px;
-  table-layout: auto;
+  table-layout: fixed;
+  min-height: 180px;
 
   th,
   td {
     border: 1px solid #cbd5e1;
-    padding: 6px 8px;
+    padding: 8px 10px;
     text-align: left;
     vertical-align: top;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    background: #ffffff;
   }
 
   th {
-    background: #e5e7eb;
+    background: #f3f4f6;
+    color: #111827;
     font-weight: 700;
   }
 
   tbody tr:nth-child(even) {
     background: #f9fafb;
   }
+
+  tbody tr:hover {
+    background: #eef2f7;
+  }
+
+  td[colspan] {
+    text-align: center;
+    font-style: italic;
+    color: #6b7280;
+    padding: 24px 10px;
+  }
 }
 
-.tabla-pasos th:nth-child(1),
-.tabla-pasos td:nth-child(1) {
+.tabla-etapas th:nth-child(1),
+.tabla-etapas td:nth-child(1) {
   width: 50px;
   text-align: center;
 }
 
-.tabla-pasos th:nth-child(2),
-.tabla-pasos td:nth-child(2) {
+.tabla-etapas th:nth-child(2),
+.tabla-etapas td:nth-child(2) {
   width: 70px;
   text-align: center;
 }
 
-.tabla-pasos th:nth-child(3),
-.tabla-pasos td:nth-child(3) {
+.tabla-etapas th:nth-child(3),
+.tabla-etapas td:nth-child(3) {
   white-space: normal;
   word-break: break-word;
+}
+
+.tabla-recuperada th:nth-child(1),
+.tabla-recuperada td:nth-child(1) {
+  width: 62%;
+  max-width: 62%;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: break-word;
+  padding-right: 8px;
+  box-sizing: border-box;
+}
+
+.tabla-recuperada th:nth-child(2),
+.tabla-recuperada td:nth-child(2),
+.tabla-recuperada th:nth-child(3),
+.tabla-recuperada td:nth-child(3),
+.tabla-recuperada th:nth-child(4),
+.tabla-recuperada td:nth-child(4) {
+  width: 12.6%;
+  max-width: 12.6%;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-sizing: border-box;
+}
+
+.bloque-recuperada {
+  margin-top: 20px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.tabla-recuperada-large-wrapper {
+  overflow-x: auto;
+}
+
+.tabla-recuperada-large {
+  width: 100%;
+  table-layout: auto;
+  border-collapse: collapse;
+}
+
+.tabla-recuperada-large th,
+.tabla-recuperada-large td {
+  border: 1px solid #cbd5e1;
+  padding: 8px 10px;
+  vertical-align: middle;
+}
+
+.tabla-recuperada-large th {
+  background: #f3f4f6;
+  font-weight: 700;
+}
+
+.tabla-recuperada-large td.num {
+  text-align: center;
+  white-space: nowrap;
 }
 
 .barra-pasos {
@@ -292,10 +399,10 @@
   background: linear-gradient(135deg, #2563eb, #1e3a8a) !important;
   color: #ffffff !important;
 
-  border: 2px solid #000000; 
+  border: 2px solid #000000;
 
   box-shadow:
-    0 0 0 2px rgba(0, 0, 0, 0.6), 
+    0 0 0 2px rgba(0, 0, 0, 0.6),
     0 4px 10px rgba(0, 0, 0, 0.3);
 
   transform: scaleY(1.06);
@@ -330,14 +437,13 @@
 
 :host ::ng-deep canvas {
   width: 100% !important;
-  height: 100% !important;
 }
 
 .chart-container {
   background: #fff;
   border-radius: 10px;
   padding: 10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   position: relative;
   page-break-inside: avoid;
   break-inside: avoid;
@@ -379,14 +485,18 @@
 
 @media (max-width: 700px) {
   .report-header {
-    flex-direction: column;
+    grid-template-columns: 1fr;
     gap: 12px;
-    align-items: flex-start;
+    align-items: center;
     margin: 0 -12px 14px -12px;
 
     h2 {
       font-size: 22px;
     }
+  }
+
+  .acciones {
+    justify-content: center;
   }
 
   .cabecera-grid {
@@ -404,4 +514,56 @@
   .tabla-pasos {
     font-size: 13px;
   }
+
+  .panel-interaccion {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+
+  .modo-opciones {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .btn-reset {
+    width: 100%;
+  }
+}
+
+.pie-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pie-chart-wrapper {
+  width: 380px;
+  height: 380px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.pie-chart-wrapper p-chart {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+::ng-deep .pie-chart-wrapper .p-chart {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+::ng-deep .pie-chart-wrapper canvas {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Para el PDF la hacemos todavía un poco más chica */
+.exportando-pdf .pie-chart-wrapper {
+  width: 300px;
+  height: 300px;
 }

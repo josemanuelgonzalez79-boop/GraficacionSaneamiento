@@ -37,7 +37,8 @@ public class GraficacionSaneamientosRepository {
                 finish_time,
                 return_water,
                 water_accum,
-                chemical_accum
+                chemical_accum,
+                recovered_water_sent
             FROM cleaning_headers
             WHERE id = :id
             """,
@@ -54,6 +55,7 @@ public class GraficacionSaneamientosRepository {
                 .returnWater(rs.getObject("return_water") != null ? ((Number) rs.getObject("return_water")).floatValue() : null)
                 .waterAccum(rs.getObject("water_accum") != null ? ((Number) rs.getObject("water_accum")).floatValue() : null)
                 .chemicalAccum(rs.getObject("chemical_accum") != null ? ((Number) rs.getObject("chemical_accum")).floatValue() : null)
+                .recoveredWaterSent(rs.getObject("recovered_water_sent") != null ? ((Number) rs.getObject("recovered_water_sent")).floatValue() : null)
                 .build()
         );
     }

@@ -53,6 +53,7 @@ export class GeneraGraficaSaneamientos implements OnInit {
 
   registroSeleccionado: any = null;
   reporte: any = null;
+  watersData: any = null;
   steps: any[] = [];
   rawData: any[] = [];
 
@@ -204,6 +205,22 @@ export class GeneraGraficaSaneamientos implements OnInit {
 
         this.procesarGraficas();
 
+        this.graficasService.GetWaters(this.registroSeleccionado.id).subscribe({
+          next: (watersResp) => {
+            const lista = Array.isArray(watersResp.data)
+              ? watersResp.data
+              : Array.isArray(watersResp.data?.data)
+              ? watersResp.data.data
+              : [];
+
+            this.watersData = lista.length ? lista[0] : null;
+          },
+          error: (err) => {
+            console.error('Error al cargar aguas recuperadas', err);
+            this.watersData = null;
+          }
+        });
+
         this.mostrarReporte = true;
 
       },
@@ -220,6 +237,7 @@ export class GeneraGraficaSaneamientos implements OnInit {
 
   private limpiarDatosReporte(): void {
     this.reporte = null;
+    this.watersData = null;
     this.steps = [];
     this.rawData = [];
 
