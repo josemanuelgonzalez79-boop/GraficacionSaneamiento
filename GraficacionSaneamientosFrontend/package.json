@@ -26,6 +26,7 @@
     "@angular/ssr": "^17.3.17",
     "chart.js": "^4.5.1",
     "chartjs-plugin-crosshair": "^2.0.0",
+    "chartjs-plugin-datalabels": "^2.2.0",
     "chartjs-plugin-zoom": "^2.2.0",
     "express": "^4.18.2",
     "html2canvas": "^1.4.1",

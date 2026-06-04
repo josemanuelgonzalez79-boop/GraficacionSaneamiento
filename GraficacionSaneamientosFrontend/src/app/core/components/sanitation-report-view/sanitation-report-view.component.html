@@ -60,15 +60,15 @@
         <div class="dato dato-agua">
           <div class="fila-tiempo">
             <span>
-              <b>Agua Tratada Enviada:</b> {{ header?.waterAccum }}
+              <b>Agua Tratada Consumida:</b> {{ header?.waterAccum }}
             </span>
 
             <span>
-              <b>Agua Recuperada Enviada:</b> {{ header?.recoveredWaterSent }}
+              <b>Agua Recuperada Consumida:</b> {{ header?.recoveredWaterSent }}
             </span>
 
             <span>
-              <b>Agua Recuperada Recibida:</b> {{ header?.returnWater }}
+              <b>Agua Recuperada Recolectada:</b> {{ header?.returnWater }}
             </span>
           </div>
         </div>
@@ -159,6 +159,7 @@
 
           <div class="chart-container large">
             <h3>Temperatura</h3>
+
             <p-chart
               type="line"
               [data]="chartTemperatura"
@@ -169,6 +170,7 @@
 
           <div class="chart-container">
             <h3>{{ tituloGraficaQuimica }}</h3>
+
             <p-chart
               type="line"
               [data]="chartConcentracion"
@@ -179,6 +181,7 @@
 
           <div class="chart-container">
             <h3>Flujo</h3>
+
             <p-chart
               type="line"
               [data]="chartFlujo"
@@ -187,14 +190,89 @@
             </p-chart>
           </div>
 
-          <div class="chart-container pie-container">
-            <h3>Distribución de Agua</h3>
+        </div>
+
+      </div>
+
+      <div class="bloque bloque-graficas-agua">
+        <h3>Indicadores de agua</h3>
+
+        <div class="graficas-agua-grid">
+
+          <div class="chart-container grafica-agua-card">
+            <h3>Agua Tratada Consumida vs Agua Recolectada</h3>
+
+            <div class="custom-legend">
+
+              <div class="legend-item">
+                <span class="legend-color color-recolectada"></span>
+
+                <span>
+                  <b>Agua Recuperada Recolectada:</b>
+                  {{ summaryRecolectada.recuperadaRecolectada }}
+                  -
+                  {{ summaryRecolectada.porcentajeRecolectada }}%
+                </span>
+              </div>
+
+              <div class="legend-item">
+                <span class="legend-color color-no-recolectada"></span>
+
+                <span>
+                  <b>Agua No Recolectada / Drenaje:</b>
+                  {{ summaryRecolectada.noRecolectada }}
+                  -
+                  {{ summaryRecolectada.porcentajeNoRecolectada }}%
+                </span>
+              </div>
+
+            </div>
 
             <div class="pie-chart-wrapper">
               <p-chart
-                type="pie"
-                [data]="chartWaters"
-                [options]="chartPieOptions"
+                type="doughnut"
+                [data]="chartRecolectada"
+                [options]="chartRecolectadaOptions"
+                (click)="$event.stopPropagation()"
+                (mousedown)="$event.stopPropagation()">
+              </p-chart>
+            </div>
+          </div>
+
+          <div class="chart-container grafica-agua-card">
+            <h3>Agua Tratada vs Agua Recuperada Consumidas</h3>
+
+            <div class="custom-legend">
+
+              <div class="legend-item">
+                <span class="legend-color color-tratada-consumida"></span>
+
+                <span>
+                  <b>Agua Tratada Consumida:</b>
+                  {{ summaryConsumida.aguaTratadaConsumida }}
+                  -
+                  {{ summaryConsumida.porcentajeAguaTratadaConsumida }}%
+                </span>
+              </div>
+
+              <div class="legend-item">
+                <span class="legend-color color-recuperada-consumida"></span>
+
+                <span>
+                  <b>Agua Recuperada Consumida:</b>
+                  {{ summaryConsumida.recuperadaConsumida }}
+                  -
+                  {{ summaryConsumida.porcentajeRecuperadaConsumida }}%
+                </span>
+              </div>
+
+            </div>
+
+            <div class="pie-chart-wrapper">
+              <p-chart
+                type="doughnut"
+                [data]="chartConsumida"
+                [options]="chartConsumidaOptions"
                 (click)="$event.stopPropagation()"
                 (mousedown)="$event.stopPropagation()">
               </p-chart>
@@ -202,7 +280,6 @@
           </div>
 
         </div>
-
       </div>
 
       <div class="bloque bloque-recuperada">
@@ -214,9 +291,9 @@
             <thead>
               <tr>
                 <th>Descripción</th>
-                <th>Agua Tratada Enviada</th>
-                <th>Agua Recuperada Enviada</th>
-                <th>Agua Recuperada Recibida</th>
+                <th>Agua Tratada Consumida</th>
+                <th>Agua Recuperada Consumida</th>
+                <th>Agua Recuperada Recolectada</th>
               </tr>
             </thead>
 
@@ -224,9 +301,9 @@
               @for (row of getWaterRecoveryRows(); track row.step) {
                 <tr>
                   <td>{{ row.descripcion }}</td>
-                  <td class="num">{{ row.aguaTratadaEnviada }}</td>
-                  <td class="num">{{ row.aguaRecuperadaEnviada }}</td>
-                  <td class="num">{{ row.aguaRecuperadaRecibida }}</td>
+                  <td class="num">{{ row.aguaTratadaConsumida }}</td>
+                  <td class="num">{{ row.aguaRecuperadaConsumida }}</td>
+                  <td class="num">{{ row.aguaRecuperadaRecolectada }}</td>
                 </tr>
               }
 

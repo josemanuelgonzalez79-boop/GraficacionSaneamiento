@@ -398,7 +398,6 @@
 .paso-activo {
   background: linear-gradient(135deg, #2563eb, #1e3a8a) !important;
   color: #ffffff !important;
-
   border: 2px solid #000000;
 
   box-shadow:
@@ -407,7 +406,6 @@
 
   transform: scaleY(1.06);
   z-index: 2;
-
   transition: all 0.2s ease;
   cursor: pointer;
 }
@@ -440,7 +438,7 @@
 }
 
 .chart-container {
-  background: #fff;
+  background: #ffffff;
   border-radius: 10px;
   padding: 10px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
@@ -467,6 +465,190 @@
   height: auto !important;
 }
 
+/* ======================================================
+   CONTENEDOR DE LAS 2 GRÁFICAS DONA DE AGUA
+   ====================================================== */
+
+.bloque-graficas-agua {
+  margin-top: 20px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.bloque-graficas-agua > h3 {
+  margin-bottom: 14px;
+}
+
+.graficas-agua-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  align-items: stretch;
+}
+
+.grafica-agua-card {
+  box-shadow: none;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.grafica-agua-card h3 {
+  font-size: 16px;
+  margin-bottom: 12px;
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Leyenda personalizada con cuadritos */
+
+.custom-legend {
+  width: 100%;
+  max-width: 620px;
+  margin: 0 auto 12px auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: #f9fafb;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
+  color: #111827;
+  text-align: center;
+  flex-wrap: wrap;
+}
+
+.legend-color {
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  flex: 0 0 18px;
+}
+
+/* Colores primera dona */
+
+.color-recolectada {
+  background: #10b981;
+}
+
+.color-no-recolectada {
+  background: #ef4444;
+}
+
+/* Colores segunda dona */
+
+.color-tratada-consumida {
+  background: #2563eb;
+}
+
+.color-recuperada-consumida {
+  background: #8b5cf6;
+}
+
+/* Dona */
+
+.pie-chart-wrapper {
+  width: 320px;
+  height: 320px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.pie-chart-wrapper p-chart {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+}
+
+::ng-deep .pie-chart-wrapper .p-chart {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+}
+
+::ng-deep .pie-chart-wrapper canvas {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Ajustes específicos para exportar PDF */
+
+.exportando-pdf .bloque-graficas-agua {
+  margin-top: 14px;
+}
+
+.exportando-pdf .graficas-agua-grid {
+  gap: 14px;
+}
+
+.exportando-pdf .grafica-agua-card {
+  padding: 8px;
+}
+
+.exportando-pdf .grafica-agua-card h3 {
+  font-size: 14px;
+  margin-bottom: 8px;
+  min-height: 32px;
+}
+
+.exportando-pdf .custom-legend {
+  max-width: 520px;
+  margin-bottom: 8px;
+  gap: 6px;
+}
+
+.exportando-pdf .legend-item {
+  font-size: 12px;
+  padding: 6px 8px;
+}
+
+.exportando-pdf .legend-color {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+}
+
+.exportando-pdf .pie-chart-wrapper {
+  width: 260px;
+  height: 260px;
+}
+
+.exportando-pdf .pie-chart-wrapper p-chart {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+}
+
+.exportando-pdf ::ng-deep .pie-chart-wrapper .p-chart {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+}
+
+.exportando-pdf ::ng-deep .pie-chart-wrapper canvas {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+}
+
+/* ======================================================
+   RESPONSIVE / PRINT
+   ====================================================== */
+
 @media print {
   .no-pdf {
     display: none !important;
@@ -479,6 +661,10 @@
 
 @media (max-width: 1200px) {
   .reporte-body {
+    grid-template-columns: 1fr;
+  }
+
+  .graficas-agua-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -530,40 +716,13 @@
   .btn-reset {
     width: 100%;
   }
-}
 
-.pie-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
+  .pie-chart-wrapper {
+    width: 280px;
+    height: 280px;
+  }
 
-.pie-chart-wrapper {
-  width: 380px;
-  height: 380px;
-  margin: 0 auto;
-  position: relative;
-}
-
-.pie-chart-wrapper p-chart {
-  display: block;
-  width: 100% !important;
-  height: 100% !important;
-}
-
-::ng-deep .pie-chart-wrapper .p-chart {
-  width: 100% !important;
-  height: 100% !important;
-}
-
-::ng-deep .pie-chart-wrapper canvas {
-  width: 100% !important;
-  height: 100% !important;
-  max-width: 100% !important;
-}
-
-/* Para el PDF la hacemos todavía un poco más chica */
-.exportando-pdf .pie-chart-wrapper {
-  width: 300px;
-  height: 300px;
+  .legend-item {
+    font-size: 12px;
+  }
 }

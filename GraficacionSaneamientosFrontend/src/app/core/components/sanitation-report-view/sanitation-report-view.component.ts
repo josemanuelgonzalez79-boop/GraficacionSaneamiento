@@ -18,8 +18,39 @@ import { UIChart } from 'primeng/chart';
 import { ButtonModule } from 'primeng/button';
 import zoomPlugin from 'chartjs-plugin-zoom';
 import { Chart } from 'chart.js';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 
-Chart.register(zoomPlugin);
+const centerTextPlugin = {
+  id: 'centerTextPlugin',
+  afterDraw: (chart: any) => {
+    if (chart.config.type !== 'doughnut') return;
+
+    const centerText = chart?.options?.plugins?.centerText;
+    if (!centerText?.display) return;
+
+    const meta = chart.getDatasetMeta(0);
+    if (!meta?.data?.length) return;
+
+    const x = meta.data[0].x;
+    const y = meta.data[0].y;
+    const ctx = chart.ctx;
+
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#111827';
+
+    ctx.font = 'bold 14px Arial';
+    ctx.fillText(centerText.line1 || '', x, y - 12);
+
+    ctx.font = 'bold 20px Arial';
+    ctx.fillText(centerText.line2 || '', x, y + 12);
+
+    ctx.restore();
+  }
+};
+
+Chart.register(zoomPlugin, ChartDataLabels, centerTextPlugin as any);
 
 @Component({
   selector: 'app-sanitation-report-view',
@@ -52,35 +83,45 @@ export class SanitationReportView implements OnInit, OnChanges {
 
   modoGrafica: 'zoom' | 'seleccion' | null = null;
 
-  chartWaters: any = {
+  chartRecolectada: any = {
     labels: [],
     datasets: [
       {
         data: [],
-        backgroundColor: ['#2563eb', '#f59e0b', '#10b981'],
-        hoverBackgroundColor: ['#1d4ed8', '#d97706', '#059669']
+        backgroundColor: ['#10b981', '#ef4444'],
+        hoverBackgroundColor: ['#059669', '#dc2626']
       }
     ]
   };
 
-  chartPieOptions: any = {
-    responsive: true,
-    maintainAspectRatio: false,
-    events: ['mousemove', 'mouseout', 'touchmove', 'touchend'],
-    onClick: () => {},
-    plugins: {
-      legend: {
-        position: 'top',
-        onClick: () => {}
-      },
-      tooltip: {
-        callbacks: {
-          label: (context: any) => {
-            return context.label || '';
-          }
-        }
+  chartConsumida: any = {
+    labels: [],
+    datasets: [
+      {
+        data: [],
+        backgroundColor: ['#2563eb', '#f59e0b'],
+        hoverBackgroundColor: ['#1d4ed8', '#d97706']
       }
-    }
+    ]
+  };
+
+  chartRecolectadaOptions: any = {};
+  chartConsumidaOptions: any = {};
+
+  summaryRecolectada = {
+    total: 0,
+    recuperadaRecolectada: 0,
+    noRecolectada: 0,
+    porcentajeRecolectada: '0.00',
+    porcentajeNoRecolectada: '0.00'
+  };
+
+  summaryConsumida = {
+    total: 0,
+    aguaTratadaConsumida: 0,
+    recuperadaConsumida: 0,
+    porcentajeAguaTratadaConsumida: '0.00',
+    porcentajeRecuperadaConsumida: '0.00'
   };
 
   chartPlugins = [
@@ -94,7 +135,6 @@ export class SanitationReportView implements OnInit, OnChanges {
 
         ctx.save();
 
-        // RANGO DE ETAPA SELECCIONADA
         if (this.etapaSeleccionada && this.steps?.length) {
 
           const totalSegundos = this.steps.reduce(
@@ -184,6 +224,10 @@ export class SanitationReportView implements OnInit, OnChanges {
         intersect: false
       },
 
+      datalabels: {
+        display: false
+      },
+
       zoom: {
         pan: {
           enabled: false,
@@ -235,25 +279,154 @@ export class SanitationReportView implements OnInit, OnChanges {
     }
   }
 
-  private generarGraficaAgua(): void {
-    const treated = Number(this.header?.waterAccum || 0);
-    const recoveredSent = Number(this.header?.recoveredWaterSent || 0);
-    const recoveredReceived = Number(this.header?.returnWater || 0);
+  private buildDoughnutOptions(total: number): any {
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '62%',
 
-    this.chartWaters = {
+      events: ['mousemove', 'mouseout', 'touchmove', 'touchend'],
+
+      onClick: () => {},
+
+      plugins: {
+        legend: {
+          display: false
+        },
+
+        tooltip: {
+          callbacks: {
+            label: (context: any) => {
+              const label = context.label || '';
+              const value = Number(context.raw || 0);
+
+              const porcentaje = total > 0
+                ? ((value / total) * 100).toFixed(2)
+                : '0.00';
+
+              return `${label}: ${value} - ${porcentaje}%`;
+            }
+          }
+        },
+
+        datalabels: {
+          display: true,
+          color: '#ffffff',
+          font: {
+            weight: 'bold',
+            size: 13
+          },
+          formatter: (value: any) => {
+            const porcentaje = total > 0
+              ? ((Number(value) / total) * 100).toFixed(2)
+              : '0.00';
+
+            return `${porcentaje}%`;
+          }
+        },
+
+        centerText: {
+          display: true,
+          line1: 'TOTAL:',
+          line2: `${total}`
+        }
+      }
+    };
+  }
+
+  private generarGraficaAgua(): void {
+    const aguaTratadaConsumida = Number(this.header?.waterAccum || 0);
+    const aguaRecuperadaRecolectada = Number(this.header?.returnWater || 0);
+    const aguaRecuperadaConsumida = Number(this.header?.recoveredWaterSent || 0);
+
+    // ==============================
+    // DONA 1:
+    // Agua Tratada Consumida vs Agua Recolectada
+    // Total = Agua Tratada Consumida
+    // ==============================
+
+    const aguaNoRecolectada = Math.max(
+      aguaTratadaConsumida - aguaRecuperadaRecolectada,
+      0
+    );
+
+    const porcentajeRecolectada = aguaTratadaConsumida > 0
+      ? ((aguaRecuperadaRecolectada / aguaTratadaConsumida) * 100).toFixed(2)
+      : '0.00';
+
+    const porcentajeNoRecolectada = aguaTratadaConsumida > 0
+      ? ((aguaNoRecolectada / aguaTratadaConsumida) * 100).toFixed(2)
+      : '0.00';
+
+    this.summaryRecolectada = {
+      total: aguaTratadaConsumida,
+      recuperadaRecolectada: aguaRecuperadaRecolectada,
+      noRecolectada: aguaNoRecolectada,
+      porcentajeRecolectada,
+      porcentajeNoRecolectada
+    };
+
+    this.chartRecolectada = {
       labels: [
-        `Agua Tratada Enviada: ${treated}`,
-        `Agua Recuperada Enviada: ${recoveredSent}`,
-        `Agua Recuperada Recibida: ${recoveredReceived}`
+        'Agua Recuperada Recolectada',
+        'Agua No Recolectada / Drenaje'
       ],
       datasets: [
         {
-          data: [treated, recoveredSent, recoveredReceived],
-          backgroundColor: ['#2563eb', '#f59e0b', '#10b981'],
-          hoverBackgroundColor: ['#1d4ed8', '#d97706', '#059669']
+          data: [
+            aguaRecuperadaRecolectada,
+            aguaNoRecolectada
+          ],
+          backgroundColor: ['#10b981', '#ef4444'],
+          hoverBackgroundColor: ['#059669', '#dc2626']
         }
       ]
     };
+
+    this.chartRecolectadaOptions = this.buildDoughnutOptions(aguaTratadaConsumida);
+
+    // ==============================
+    // DONA 2:
+    // Agua Tratada vs Agua Recuperada Consumidas
+    // Total = Agua Tratada Consumida + Agua Recuperada Consumida
+    // ==============================
+
+    const totalAguaConsumida = aguaTratadaConsumida + aguaRecuperadaConsumida;
+
+    const porcentajeTratadaConsumida = totalAguaConsumida > 0
+      ? ((aguaTratadaConsumida / totalAguaConsumida) * 100).toFixed(2)
+      : '0.00';
+
+    const porcentajeRecuperadaConsumida = totalAguaConsumida > 0
+      ? ((aguaRecuperadaConsumida / totalAguaConsumida) * 100).toFixed(2)
+      : '0.00';
+
+    this.summaryConsumida = {
+      total: totalAguaConsumida,
+      aguaTratadaConsumida,
+      recuperadaConsumida: aguaRecuperadaConsumida,
+      porcentajeAguaTratadaConsumida: porcentajeTratadaConsumida,
+      porcentajeRecuperadaConsumida
+    } as any;
+
+    this.chartConsumida = {
+      labels: [
+        'Agua Tratada Consumida',
+        'Agua Recuperada Consumida'
+      ],
+      datasets: [
+        {
+          data: [
+            aguaTratadaConsumida,
+            aguaRecuperadaConsumida
+          ],
+          backgroundColor: ['#2563eb', '#8b5cf6'],
+          hoverBackgroundColor: ['#1d4ed8', '#7c3aed']
+        }
+      ]
+    };
+
+    this.chartConsumidaOptions = this.buildDoughnutOptions(totalAguaConsumida);
   }
 
   private esGraficaPastel(chart: any): boolean {
@@ -605,9 +778,9 @@ export class SanitationReportView implements OnInit, OnChanges {
       rows.push({
         step: 1,
         descripcion: stepsMap['1'] ?? 'Etapa 1',
-        aguaTratadaEnviada: treatedFirst || '',
-        aguaRecuperadaRecibida: recoveredFirst || '',
-        aguaRecuperadaEnviada: sentFirst || ''
+        aguaTratadaConsumida: treatedFirst || '',
+        aguaRecuperadaConsumida: recoveredFirst || '',
+        aguaRecuperadaRecolectada: sentFirst || ''
       });
     }
 
@@ -619,9 +792,9 @@ export class SanitationReportView implements OnInit, OnChanges {
         rows.push({
           step: index,
           descripcion: stepsMap[String(index)] ?? `Etapa ${index}`,
-          aguaTratadaEnviada: treated || '',
-          aguaRecuperadaRecibida: recovered || '',
-          aguaRecuperadaEnviada: ''
+          aguaTratadaConsumida: treated || '',
+          aguaRecuperadaConsumida: recovered || '',
+          aguaRecuperadaRecolectada: ''
         });
       }
     }
