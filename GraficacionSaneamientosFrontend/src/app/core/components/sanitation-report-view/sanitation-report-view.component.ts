@@ -603,7 +603,7 @@ export class SanitationReportView implements OnInit, OnChanges {
       await new Promise(resolve => setTimeout(resolve, 500));
 
       const chartElements = Array.from(
-        reportElement.querySelectorAll('.chart-container')
+        reportElement.querySelectorAll('.chart-container, .bloque-agua-layout')
       ) as HTMLElement[];
 
       const parentRect = reportElement.getBoundingClientRect();

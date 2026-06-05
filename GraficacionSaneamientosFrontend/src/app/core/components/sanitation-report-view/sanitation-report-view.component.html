@@ -194,15 +194,16 @@
 
       </div>
 
-      <div class="bloque bloque-graficas-agua">
-        <h3>Indicadores de agua</h3>
+      <div class="bloque bloque-agua-layout">
 
-        <div class="graficas-agua-grid">
+        <h3 class="titulo-indicadores-agua">Indicadores de agua</h3>
 
-          <div class="chart-container grafica-agua-card">
+        <div class="agua-graficas-section">
+
+          <div class="grafica-agua-card compacta">
             <h3>Agua Tratada Consumida vs Agua Recolectada</h3>
 
-            <div class="custom-legend">
+            <div class="custom-legend compacta">
 
               <div class="legend-item">
                 <span class="legend-color color-recolectada"></span>
@@ -228,7 +229,7 @@
 
             </div>
 
-            <div class="pie-chart-wrapper">
+            <div class="pie-chart-wrapper compacta">
               <p-chart
                 type="doughnut"
                 [data]="chartRecolectada"
@@ -239,10 +240,10 @@
             </div>
           </div>
 
-          <div class="chart-container grafica-agua-card">
+          <div class="grafica-agua-card compacta">
             <h3>Agua Tratada vs Agua Recuperada Consumidas</h3>
 
-            <div class="custom-legend">
+            <div class="custom-legend compacta">
 
               <div class="legend-item">
                 <span class="legend-color color-tratada-consumida"></span>
@@ -268,7 +269,7 @@
 
             </div>
 
-            <div class="pie-chart-wrapper">
+            <div class="pie-chart-wrapper compacta">
               <p-chart
                 type="doughnut"
                 [data]="chartConsumida"
@@ -280,42 +281,43 @@
           </div>
 
         </div>
-      </div>
 
-      <div class="bloque bloque-recuperada">
-        <h3>Agua Recuperada</h3>
+        <div class="agua-tabla-section">
+          <h3>Registros de Aguas por Pasos</h3>
 
-        <div class="tabla-pasos-wrapper tabla-recuperada-large-wrapper">
-          <table class="tabla-pasos tabla-recuperada-large">
+          <div class="tabla-pasos-wrapper tabla-recuperada-large-wrapper">
+            <table class="tabla-pasos tabla-recuperada-large">
 
-            <thead>
-              <tr>
-                <th>Descripción</th>
-                <th>Agua Tratada Consumida</th>
-                <th>Agua Recuperada Consumida</th>
-                <th>Agua Recuperada Recolectada</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              @for (row of getWaterRecoveryRows(); track row.step) {
+              <thead>
                 <tr>
-                  <td>{{ row.descripcion }}</td>
-                  <td class="num">{{ row.aguaTratadaConsumida }}</td>
-                  <td class="num">{{ row.aguaRecuperadaConsumida }}</td>
-                  <td class="num">{{ row.aguaRecuperadaRecolectada }}</td>
+                  <th>Descripción</th>
+                  <th>Agua Tratada Consumida</th>
+                  <th>Agua Recuperada Consumida</th>
+                  <th>Agua Recuperada Recolectada</th>
                 </tr>
-              }
+              </thead>
 
-              @if (getWaterRecoveryRows().length === 0) {
-                <tr>
-                  <td colspan="4">No hay datos de agua recuperada disponibles</td>
-                </tr>
-              }
-            </tbody>
+              <tbody>
+                @for (row of getWaterRecoveryRows(); track row.step) {
+                  <tr>
+                    <td>{{ row.descripcion }}</td>
+                    <td class="num">{{ row.aguaTratadaConsumida }}</td>
+                    <td class="num">{{ row.aguaRecuperadaConsumida }}</td>
+                    <td class="num">{{ row.aguaRecuperadaRecolectada }}</td>
+                  </tr>
+                }
 
-          </table>
+                @if (getWaterRecoveryRows().length === 0) {
+                  <tr>
+                    <td colspan="4">No hay datos de agua recuperada disponibles</td>
+                  </tr>
+                }
+              </tbody>
+
+            </table>
+          </div>
         </div>
+
       </div>
 
     </div>
