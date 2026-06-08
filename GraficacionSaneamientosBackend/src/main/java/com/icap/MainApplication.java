@@ -22,9 +22,9 @@ public class MainApplication {
             .allowedOrigins(
                 "http://localhost:4200",
                 "http://127.0.0.1:4200",
-                "http://192.168.5.46:4200",  //personalizar
+                "http://192.168.12.30:4200",  //personalizar
                 "http://localhost:8080",
-                "http://192.168.5.46:8080"
+                "http://192.168.12.30:8080"
             )
             .allowedMethods("GET","POST","PUT","DELETE","PATCH","OPTIONS")
             .allowedHeaders("*")

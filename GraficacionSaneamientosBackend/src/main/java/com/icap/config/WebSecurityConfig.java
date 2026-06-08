@@ -59,10 +59,10 @@ public class WebSecurityConfig {
     config.setAllowedOrigins(List.of(
         "http://localhost:4200",
         "http://127.0.0.1:4200",
-        "http://192.168.5.46:4200", //personalizar esto
+        "http://192.168.12.30:4200", //personalizar esto
         "http://localhost:8080",
         "http://127.0.0.1:8080",
-        "http://192.168.5.46:8080"
+        "http://192.168.12.30:8080"
     ));
     config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","PATCH","OPTIONS"));
     config.setAllowedHeaders(List.of("*"));

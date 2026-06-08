@@ -19,9 +19,9 @@ management:
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/Coatepec
+    url: jdbc:postgresql://localhost:5432/process
     username: postgres
-    password: 123
+    password: icap355
     hikari:
       minimumIdle: 1
       maximumPoolSize: 4
