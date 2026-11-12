@@ -157,6 +157,26 @@
               </div>
             </div>
 
+            <!-- Leyenda exclusiva para el PDF. Los checkboxes se mantienen en pantalla,
+                 pero se ocultan durante la exportación mediante .no-pdf. -->
+            <div class="pdf-combined-legend" aria-label="Leyenda de variables de la gráfica general">
+              @for (grupo of gruposLeyendaGeneralPDF; track grupo.key) {
+                <div class="pdf-combined-legend-group">
+                  <strong class="pdf-combined-legend-heading">{{ grupo.titulo }}</strong>
+                  @for (serie of grupo.series; track serie.key) {
+                    <div class="pdf-combined-legend-item">
+                      <span class="pdf-combined-legend-swatch"
+                            [class.is-dashed]="!!serie.discontinua"
+                            [style.border-top-color]="serie.color"></span>
+                      <span class="pdf-combined-legend-name">{{ serie.etiquetaPDF }}</span>
+                    </div>
+                  }
+                </div>
+              } @empty {
+                <p class="pdf-combined-legend-empty">Sin variables seleccionadas.</p>
+              }
+            </div>
+
             @if (numeroSeriesGeneralesSeleccionadas === 0) {
               <p class="combined-empty no-pdf">Selecciona al menos una variable para visualizar su gráfica.</p>
             }

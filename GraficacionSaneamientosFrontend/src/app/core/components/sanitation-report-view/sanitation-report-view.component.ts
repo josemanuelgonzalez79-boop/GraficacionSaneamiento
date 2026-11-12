@@ -239,6 +239,49 @@ export class SanitationReportView implements OnInit, OnChanges, OnDestroy {
     return [...temperatura, ...quimica, ...flujo, ...niveles];
   }
 
+  // Leyenda para el PDF: reutiliza colores, tipos de línea y selección real
+  // de la gráfica combinada. Los nombres de niveles se acortan para que la
+  // leyenda resulte legible en una hoja A4 horizontal.
+  get gruposLeyendaGeneralPDF(): Array<{
+    key: SerieGeneral['grupo'];
+    titulo: string;
+    series: Array<SerieGeneral & { etiquetaPDF: string }>;
+  }> {
+    const grupos: Array<{ key: SerieGeneral['grupo']; titulo: string }> = [
+      { key: 'temperatura', titulo: 'TEMPERATURA [°C]' },
+      { key: 'quimica', titulo: this.esGraficaOzono() ? 'OZONO' : 'CONDUCTIVIDAD' },
+      { key: 'flujo', titulo: 'FLUJO' },
+      { key: 'niveles', titulo: 'NIVELES DE TANQUE [L]' }
+    ];
+    const etiquetas: Record<string, string> = {
+      spTemp: 'Meta',
+      returnTemp: 'Retorno',
+      supplyTemp: 'Suministro',
+      spCond: 'Meta',
+      returnCond: 'Retorno',
+      spOzone: 'Meta',
+      returnOzone: 'Retorno',
+      spFlow: 'Meta',
+      supplyFlow: 'Suministro',
+      levelTa5001: 'LE-5001 · Agua tratada',
+      levelTa5002: 'LE-5002 · Detergente',
+      levelTa5003: 'LE-5003 · Sanitizante',
+      levelTa5004: 'LE-5004 · Agua recuperada'
+    };
+    const visibles = this.getSeriesGeneralesDisponibles()
+      .filter(serie => !!this.selectedCombinedSeries[serie.key]);
+
+    return grupos.map(grupo => ({
+      ...grupo,
+      series: visibles
+        .filter(serie => serie.grupo === grupo.key)
+        .map(serie => ({
+          ...serie,
+          etiquetaPDF: etiquetas[serie.key] ?? serie.label
+        }))
+    })).filter(grupo => grupo.series.length > 0);
+  }
+
   get numeroSeriesGeneralesSeleccionadas(): number {
     return this.getSeriesGeneralesDisponibles()
       .filter(s => !!this.selectedCombinedSeries[s.key]).length;
