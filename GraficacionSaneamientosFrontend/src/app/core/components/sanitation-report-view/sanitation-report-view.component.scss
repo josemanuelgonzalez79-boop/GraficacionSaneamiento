@@ -482,7 +482,9 @@
   min-height: 300px;
 }
 
-::ng-deep .chart-container canvas {
+/* Las tres gráficas PrimeNG conservan su presentación original.
+   No aplicar height:auto al canvas nativo de la gráfica combinada. */
+::ng-deep .chart-container:not(.chart-container-combined) canvas {
   max-width: 100% !important;
   height: auto !important;
 }
@@ -1392,24 +1394,28 @@
   margin: 12px 0;
 }
 
-.combined-chart-canvas {
-  width: 100%;
-  height: 480px;
-  min-height: 420px;
+/* Una sola fuente de tamaño para Chart.js: el contenedor padre del canvas.
+   Chart.js usa su tamaño a través de responsive + maintainAspectRatio=false. */
+.chart-container-combined .combined-chart-canvas {
   position: relative;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  height: 540px;
+  min-height: 0;
+  max-height: none;
+  box-sizing: border-box;
+  overflow: visible;
 }
 
-.chart-container-combined .combined-chart-canvas p-chart,
-:host ::ng-deep .chart-container-combined .combined-chart-canvas .p-chart {
+/* CSS sólo para este canvas: NO heredar height:auto de las gráficas PrimeNG. */
+.chart-container-combined .combined-chart-canvas > canvas {
   display: block;
+  box-sizing: border-box;
   width: 100% !important;
   height: 100% !important;
   min-height: 0 !important;
-}
-
-:host ::ng-deep .chart-container-combined .combined-chart-canvas canvas {
-  width: 100% !important;
-  height: 100% !important;
+  max-height: 100% !important;
   max-width: 100% !important;
 }
 
@@ -1418,9 +1424,9 @@
   padding: 10px;
 }
 
-.exportando-pdf .combined-chart-canvas {
+.exportando-pdf .chart-container-combined .combined-chart-canvas {
   height: 420px;
-  min-height: 420px;
+  min-height: 0;
 }
 
 @media (max-width: 1150px) {
@@ -1429,57 +1435,23 @@
 
 @media (max-width: 650px) {
   .selector-series-grid { grid-template-columns: 1fr; }
-  .combined-chart-canvas { height: 360px; min-height: 360px; }
+  .chart-container-combined .combined-chart-canvas { height: 390px; }
   .chart-container-combined { padding: 12px 9px; }
 }
 
 
-/* ======================================================================
-   OPTICLEAN - AJUSTE FINAL PARA VISIBILIDAD DEL EJE X EN PANTALLA
-   Conserva el PDF como está; solamente evita el recorte inferior del canvas.
-   ====================================================================== */
-@media screen {
-  .report-content:not(.exportando-pdf) .chart-container-combined {
-    overflow: visible;
-    padding-bottom: 18px;
-  }
 
-  .report-content:not(.exportando-pdf) .combined-chart-canvas {
-    height: 470px;
-    min-height: 470px;
-    max-height: none;
-    overflow: visible;
-    padding: 0 6px 24px 0;
-    box-sizing: border-box;
-  }
-
-  .report-content:not(.exportando-pdf) .combined-chart-canvas p-chart {
-    overflow: visible;
-  }
-}
-
-@media screen {
-  :host ::ng-deep .report-content:not(.exportando-pdf)
-    .chart-container-combined .combined-chart-canvas .p-chart {
-    overflow: visible !important;
-  }
-
-  :host ::ng-deep .report-content:not(.exportando-pdf)
-    .chart-container-combined .combined-chart-canvas canvas {
-    overflow: visible !important;
-  }
-}
-
+/* Alturas responsivas de la gráfica combinada nativa. El PDF conserva 420px. */
 @media screen and (max-width: 1100px) {
-  .report-content:not(.exportando-pdf) .combined-chart-canvas {
-    height: 430px;
-    min-height: 430px;
+  .report-content:not(.exportando-pdf)
+    .chart-container-combined .combined-chart-canvas {
+    height: 460px;
   }
 }
 
 @media screen and (max-width: 700px) {
-  .report-content:not(.exportando-pdf) .combined-chart-canvas {
+  .report-content:not(.exportando-pdf)
+    .chart-container-combined .combined-chart-canvas {
     height: 390px;
-    min-height: 390px;
   }
 }

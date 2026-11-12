@@ -161,12 +161,12 @@
               <p class="combined-empty no-pdf">Selecciona al menos una variable para visualizar su gráfica.</p>
             }
 
+            <!-- Gráfica general con canvas nativo Chart.js: su contenedor
+                 determina el alto, sin los estilos internos de PrimeNG p-chart. -->
             <div class="combined-chart-canvas">
-              <p-chart type="line"
-                       [data]="chartGeneral"
-                       [options]="chartGeneralOptions"
-                       [plugins]="chartPlugins">
-              </p-chart>
+              <canvas #combinedCanvas
+                      role="img"
+                      aria-label="Gráfica general del proceso con series seleccionables y eje de tiempo"></canvas>
             </div>
           </section>
 

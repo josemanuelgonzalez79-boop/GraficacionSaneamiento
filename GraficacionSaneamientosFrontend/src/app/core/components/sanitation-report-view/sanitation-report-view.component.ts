@@ -1,6 +1,6 @@
 import {
   Component, Input, Output, EventEmitter, ViewChild, ViewChildren,
-  ElementRef, OnInit, OnChanges, SimpleChanges, QueryList
+  ElementRef, OnInit, OnChanges, OnDestroy, SimpleChanges, QueryList
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -52,7 +52,7 @@ interface SerieGeneral {
   templateUrl: './sanitation-report-view.component.html',
   styleUrls: ['./sanitation-report-view.component.scss']
 })
-export class SanitationReportView implements OnInit, OnChanges {
+export class SanitationReportView implements OnInit, OnChanges, OnDestroy {
   @Input() visible = false;
   @Input() header: any;
   @Input() steps: any[] = [];
@@ -66,6 +66,23 @@ export class SanitationReportView implements OnInit, OnChanges {
 
   @ViewChild('reportePDF') reportePDF!: ElementRef;
   @ViewChildren(UIChart) charts!: QueryList<UIChart>;
+
+  private combinedCanvasElement: HTMLCanvasElement | null = null;
+  private combinedChartInstance: Chart | null = null;
+
+  // Angular crea/destruye esta vista con @if (visible). El setter asegura
+  // que la gráfica exista sólo cuando el canvas está montado en el DOM.
+  @ViewChild('combinedCanvas')
+  set combinedCanvas(ref: ElementRef<HTMLCanvasElement> | undefined) {
+    if (!ref) {
+      this.combinedChartInstance?.destroy();
+      this.combinedChartInstance = null;
+      this.combinedCanvasElement = null;
+      return;
+    }
+    this.combinedCanvasElement = ref.nativeElement;
+    setTimeout(() => this.renderCombinedChart(), 0);
+  }
 
   exportandoPDF = false;
   etapaSeleccionada: any = null;
@@ -264,13 +281,14 @@ export class SanitationReportView implements OnInit, OnChanges {
         x: {
           display: true,
           offset: false,
+          title: { display: true, text: 'Hora del proceso', color: '#475569' },
           ticks: {
             display: true,
             autoSkip: true,
-            maxTicksLimit: 16,
+            maxTicksLimit: 12,
             maxRotation: 0,
             minRotation: 0,
-            padding: 10,
+            padding: 8,
             color: '#475569',
             font: { size: 11 }
           },
@@ -332,6 +350,33 @@ export class SanitationReportView implements OnInit, OnChanges {
     this.actualizarGraficas();
   }
 
+  private renderCombinedChart(): void {
+    const canvas = this.combinedCanvasElement;
+    if (!canvas || !canvas.isConnected) return;
+
+    if (this.combinedChartInstance) {
+      // Reutilizamos el mismo canvas: checkbox, etapa y modo de zoom no
+      // vuelven a construir el componente ni crean instancias duplicadas.
+      this.combinedChartInstance.data = this.chartGeneral;
+      this.combinedChartInstance.options = this.chartGeneralOptions;
+      this.combinedChartInstance.update('none');
+      return;
+    }
+
+    this.combinedChartInstance = new Chart(canvas, {
+      type: 'line',
+      data: this.chartGeneral,
+      options: this.chartGeneralOptions,
+      plugins: this.chartPlugins as any
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.combinedChartInstance?.destroy();
+    this.combinedChartInstance = null;
+    this.combinedCanvasElement = null;
+  }
+
   // ==================================================================
   // COMPORTAMIENTO ACTUAL: ETAPAS, ZOOM, SELECCIÓN Y RESET.
   // ==================================================================
@@ -375,6 +420,12 @@ export class SanitationReportView implements OnInit, OnChanges {
         }
         chart.update('none');
       });
+      const combinada = this.combinedChartInstance as any;
+      combinada?.resetZoom?.('none');
+      if (combinada?.options?.scales?.x) {
+        delete combinada.options.scales.x.min;
+        delete combinada.options.scales.x.max;
+      }
       this.chartOptions = {
         ...this.chartOptions,
         plugins: {
@@ -414,6 +465,7 @@ export class SanitationReportView implements OnInit, OnChanges {
         if (!chart || this.esGraficaPastel(chart)) return;
         chart.update();
       });
+      this.renderCombinedChart();
     });
   }
 
@@ -432,6 +484,7 @@ export class SanitationReportView implements OnInit, OnChanges {
     try {
       this.exportandoPDF = true;
       await new Promise(resolve => setTimeout(resolve, 100));
+      this.combinedChartInstance?.resize();
       const { default: jsPDF } = await import('jspdf');
       const html2canvas = (await import('html2canvas')).default;
       const pdf = new jsPDF('l', 'mm', 'a4');
@@ -443,6 +496,8 @@ export class SanitationReportView implements OnInit, OnChanges {
       reportElement.style.maxWidth = '1200px';
       reportElement.style.margin = '0 auto';
       await new Promise(resolve => setTimeout(resolve, 500));
+      this.combinedChartInstance?.resize();
+      await new Promise(resolve => setTimeout(resolve, 60));
       const chartElements = Array.from(
         reportElement.querySelectorAll('.chart-container, .bloque-agua-layout')
       ) as HTMLElement[];
@@ -526,6 +581,7 @@ export class SanitationReportView implements OnInit, OnChanges {
         reportElement.style.margin = originalMargin;
       }
       this.exportandoPDF = false;
+      setTimeout(() => this.combinedChartInstance?.resize(), 0);
     }
   }
 
