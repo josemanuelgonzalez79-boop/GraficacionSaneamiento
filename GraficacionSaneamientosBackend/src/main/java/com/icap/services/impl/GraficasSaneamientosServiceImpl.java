@@ -80,10 +80,15 @@ public class GraficasSaneamientosServiceImpl implements GraficasSaneamientosServ
                             .supplyTemp(d.getSupplyTemp())
                             .spCond(d.getSpCond())
                             .returnCond(d.getReturnCond())
+                            .supplyCond(d.getSupplyCond())
                             .spOzone(d.getSpOzone())
                             .returnOzone(d.getReturnOzone())
                             .spFlow(d.getSpFlow())
                             .supplyFlow(d.getSupplyFlow())
+                            .levelTa5001(d.getLevelTa5001())
+                            .levelTa5002(d.getLevelTa5002())
+                            .levelTa5003(d.getLevelTa5003())
+                            .levelTa5004(d.getLevelTa5004())
                             .build())
                     .toList();
 

@@ -22,7 +22,6 @@
       styleClass="tabla-saneamientos"
       sortMode="single"
     >
-
       <!-- HEADER -->
       <ng-template pTemplate="header">
         <tr>
@@ -30,37 +29,30 @@
             Fecha
             <p-sortIcon field="fechaRaw"></p-sortIcon>
           </th>
-
           <th pSortableColumn="folio">
             Folio
             <p-sortIcon field="folio"></p-sortIcon>
           </th>
-
           <th pSortableColumn="estacion">
             Estación
             <p-sortIcon field="estacion"></p-sortIcon>
           </th>
-
           <th pSortableColumn="circuito">
             Circuito
             <p-sortIcon field="circuito"></p-sortIcon>
           </th>
-
           <th pSortableColumn="receta">
             Receta
             <p-sortIcon field="receta"></p-sortIcon>
           </th>
-
           <th pSortableColumn="usuario">
             Usuario
             <p-sortIcon field="usuario"></p-sortIcon>
           </th>
-
           <th pSortableColumn="duracion">
             Duración
             <p-sortIcon field="duracion"></p-sortIcon>
           </th>
-
           <th pSortableColumn="aguaTratada">
             Agua Tratada
             <p-sortIcon field="aguaTratada"></p-sortIcon>
@@ -81,66 +73,52 @@
           <td>{{ registro.aguaTratada }}</td>
         </tr>
       </ng-template>
-
     </p-table>
   </div>
 
   <!-- FILTROS -->
   <div class="panel-filtros">
-
     <div class="campo">
       <label>Fecha Inicio</label>
       <p-calendar [(ngModel)]="fechaInicio" dateFormat="dd/mm/yy" [showIcon]="true"></p-calendar>
     </div>
-
     <div class="campo">
       <label>Fecha Fin</label>
       <p-calendar [(ngModel)]="fechaFin" dateFormat="dd/mm/yy" [showIcon]="true"></p-calendar>
     </div>
-<!--
+    <!--
     <div class="campo">
       <label>Estación</label>
-      <p-dropdown 
-        [options]="estaciones"
-        [(ngModel)]="estacionSeleccionada"
-        placeholder="Selecciona estación">
-      </p-dropdown>
+      <p-dropdown [options]="estaciones" [(ngModel)]="estacionSeleccionada" placeholder="Selecciona estación"></p-dropdown>
     </div>
-  -->
+    -->
     <div class="campo">
       <label>Objeto</label>
-      <p-dropdown 
-        [options]="objetos" 
-        [(ngModel)]="objetoSeleccionado" 
+      <p-dropdown
+        [options]="objetos"
+        [(ngModel)]="objetoSeleccionado"
         placeholder="Selecciona objeto">
       </p-dropdown>
     </div>
-
     <div class="campo">
       <label>Receta</label>
-      <p-dropdown 
-        [options]="recetas" 
-        [(ngModel)]="recetaSeleccionada" 
+      <p-dropdown
+        [options]="recetas"
+        [(ngModel)]="recetaSeleccionada"
         placeholder="Selecciona receta">
       </p-dropdown>
     </div>
-
     <button pButton label="Cargar" (click)="cargar()"></button>
-
     <button pButton label="Generar Reporte" (click)="generarReporte()"></button>
-
-    <button 
-      pButton 
-      label="Generar Excel" 
+    <button
+      pButton
+      label="Generar Excel"
       (click)="exportarExcel()"
       [disabled]="registros.length <= 1"
       class="btn-excel">
     </button>
-
     <button pButton label="Cancelar" (click)="cancelar()"></button>
-
   </div>
-
 </div>
 
 <!-- MODAL -->
@@ -151,6 +129,7 @@
     [header]="reporte?.header"
     [steps]="steps"
     [waters]="watersData"
+    [rawData]="rawData"
     [chartTemperatura]="chartTemperatura"
     [chartConcentracion]="chartConcentracion"
     [chartFlujo]="chartFlujo"

@@ -129,6 +129,47 @@
             </button>
           </div>
 
+          <!-- Gráfica general primero; controles independientes de selección de series. -->
+          <section class="chart-container chart-container-combined" aria-label="Gráfica general de saneamiento">
+            <div class="combined-chart-header">
+              <div>
+                <h3>Gráfica general del proceso</h3>
+                <p class="combined-subtitle">Temperatura · Química · Flujo · Niveles de tanques</p>
+              </div>
+              <span class="combined-count no-pdf">{{ numeroSeriesGeneralesSeleccionadas }} series visibles</span>
+            </div>
+
+            <div class="selector-series no-pdf">
+              <div class="selector-series-actions">
+                <button type="button" class="btn-mini" (click)="seleccionarTodasLasSeriesGenerales()">Seleccionar todas</button>
+                <button type="button" class="btn-mini btn-mini-light" (click)="limpiarSeriesGenerales()">Limpiar</button>
+              </div>
+              <div class="selector-series-grid">
+                @for (serie of getSeriesGeneralesDisponibles(); track serie.key) {
+                  <label class="selector-series-item">
+                    <input type="checkbox"
+                           [checked]="selectedCombinedSeries[serie.key]"
+                           (change)="toggleSerieGeneral(serie.key)" />
+                    <span class="selector-color" [style.background]="serie.color"></span>
+                    <span>{{ serie.label }}</span>
+                  </label>
+                }
+              </div>
+            </div>
+
+            @if (numeroSeriesGeneralesSeleccionadas === 0) {
+              <p class="combined-empty no-pdf">Selecciona al menos una variable para visualizar su gráfica.</p>
+            }
+
+            <div class="combined-chart-canvas">
+              <p-chart type="line"
+                       [data]="chartGeneral"
+                       [options]="chartGeneralOptions"
+                       [plugins]="chartPlugins">
+              </p-chart>
+            </div>
+          </section>
+
           <div class="chart-container large">
             <h3>Temperatura</h3>
 
@@ -270,6 +311,9 @@
             </tfoot>
           </table>
         </div>
+        <p class="cip-nota">
+          El agua recuperada se presenta como total del proceso porque no tiene desglose por etapa.
+        </p>
       </section>
 
     </div>
