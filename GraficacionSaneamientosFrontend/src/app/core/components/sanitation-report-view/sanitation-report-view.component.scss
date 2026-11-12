@@ -209,19 +209,17 @@
 
 .reporte-body {
   display: grid;
-  grid-template-columns: 380px minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: 20px;
   align-items: start;
+  width: 100%;
 }
 
-.columna-izquierda,
 .columna-derecha {
   display: flex;
   flex-direction: column;
   gap: 20px;
-}
-
-.columna-derecha {
+  width: 100%;
   min-width: 0;
 }
 
@@ -873,5 +871,383 @@
 
   .custom-legend.compacta .legend-item {
     font-size: 11px;
+  }
+}
+
+/* ================================================================
+   NUEVA PORTADA + EJECUCIÓN DE CIP
+   Inspirada en la referencia del cliente, responsive y apta para PDF.
+   ================================================================ */
+
+/* Permite las tres fechas del encabezado principal sin desbordamiento. */
+.dato-tiempo .fila-tiempo {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.dato-tiempo .fila-tiempo span {
+  flex: initial;
+  min-width: 0;
+  font-size: 12px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.bloque-ejecucion-layout {
+  margin-top: 20px;
+  padding: 22px 24px 18px;
+  overflow: visible;
+  background: #ffffff;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+/* Marca y título: cabecera principal del bloque CIP. */
+.cip-portada {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding-bottom: 15px;
+  margin-bottom: 16px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.cip-identidad {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-width: 0;
+}
+
+.cip-logo-femsa {
+  display: block;
+  flex: 0 0 auto;
+  width: 134px;
+  max-height: 72px;
+  object-fit: contain;
+}
+
+.cip-empresa {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  color: #16263b;
+}
+
+.cip-empresa strong {
+  font-size: clamp(18px, 1.7vw, 27px);
+  font-weight: 800;
+  letter-spacing: -.5px;
+  line-height: 1.2;
+}
+
+.cip-empresa span {
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.cip-reporte-nombre {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.cip-reporte-nombre small {
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.8px;
+}
+
+.cip-reporte-nombre strong {
+  color: #14243b;
+  font-size: clamp(20px, 1.8vw, 29px);
+  font-weight: 800;
+  letter-spacing: .7px;
+}
+
+/* Fichas de datos de CIP: dos columnas como la referencia. */
+.cip-resumen {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 18px;
+  margin-bottom: 20px;
+}
+
+.cip-resumen-grupo {
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+  background: #fbfcfe;
+  overflow: hidden;
+}
+
+.cip-resumen-dato {
+  display: grid;
+  grid-template-columns: minmax(165px, .7fr) minmax(0, 1.3fr);
+  align-items: center;
+  column-gap: 12px;
+  padding: 10px 15px;
+  min-height: 42px;
+}
+
+.cip-resumen-dato + .cip-resumen-dato {
+  border-top: 1px solid #e2e8f0;
+}
+
+.cip-resumen-dato .cip-campo {
+  color: #475569;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .25px;
+}
+
+.cip-resumen-dato strong {
+  color: #111827;
+  font-size: 13px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.cip-titulo-tabla {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0 0 9px;
+  padding: 0 0 8px;
+  border-bottom: 1px solid #cbd5e1;
+}
+
+.bloque-ejecucion-layout .titulo-ejecucion-cip {
+  margin: 0;
+  color: #17304b;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: .5px;
+  text-align: left;
+}
+
+.cip-titulo-tabla > span {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.tabla-ejecucion-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #d7dfe9;
+  border-radius: 8px;
+}
+
+.tabla-ejecucion-cip {
+  width: 100%;
+  min-width: 1020px;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  color: #162335;
+}
+
+.tabla-ejecucion-cip th,
+.tabla-ejecucion-cip td {
+  padding: 9px 10px;
+  line-height: 1.35;
+  vertical-align: middle;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.tabla-ejecucion-cip thead th {
+  background: #e9f0f9;
+  color: #193654;
+  font-weight: 800;
+  text-align: center;
+  white-space: normal;
+  border-bottom: 2px solid #9eb5d0;
+}
+
+/* Suman 100 %. */
+.tabla-ejecucion-cip th:nth-child(1) { width: 32%; }
+.tabla-ejecucion-cip th:nth-child(2) { width: 18%; }
+.tabla-ejecucion-cip th:nth-child(3) { width: 18%; }
+.tabla-ejecucion-cip th:nth-child(4) { width: 10%; }
+.tabla-ejecucion-cip th:nth-child(5) { width: 11%; }
+.tabla-ejecucion-cip th:nth-child(6) { width: 11%; }
+
+.tabla-ejecucion-cip td.descripcion {
+  font-weight: 500;
+  text-align: left;
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+
+.tabla-ejecucion-cip .numero-paso {
+  font-weight: 800;
+  color: #1e5d9c;
+  margin-right: 4px;
+}
+
+.tabla-ejecucion-cip td.fecha,
+.tabla-ejecucion-cip td.duracion,
+.tabla-ejecucion-cip td.agua {
+  text-align: center;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.tabla-ejecucion-cip td.agua {
+  text-align: right;
+  padding-right: 14px;
+}
+
+.tabla-ejecucion-cip tbody tr:nth-child(even) {
+  background: #f8fafc;
+}
+
+.tabla-ejecucion-cip tbody tr:hover {
+  background: #edf5ff;
+}
+
+.tabla-ejecucion-cip .dato-no-desglosado {
+  color: #94a3b8;
+  text-align: center;
+}
+
+.tabla-ejecucion-cip .tabla-vacia {
+  padding: 18px;
+  text-align: center;
+  color: #64748b;
+}
+
+.tabla-ejecucion-cip tfoot td {
+  background: #e8f0fc;
+  border-top: 2px solid #94b1d5;
+  border-bottom: none;
+  font-weight: 800;
+}
+
+.tabla-ejecucion-cip tfoot .texto-total {
+  text-align: right;
+  letter-spacing: .4px;
+}
+
+.tabla-ejecucion-cip tfoot .total-valor {
+  color: #124577;
+}
+
+.cip-nota {
+  margin: 9px 0 0;
+  color: #64748b;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.cip-nota code {
+  font: inherit;
+  font-weight: 700;
+}
+
+/* PDF: capturado a ancho fijo de 1200 px por exportarPDF(). */
+.exportando-pdf .bloque-ejecucion-layout {
+  margin-top: 12px;
+  padding: 12px 15px;
+}
+
+.exportando-pdf .cip-portada {
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+}
+
+.exportando-pdf .cip-logo-femsa {
+  width: 115px;
+  max-height: 62px;
+}
+
+.exportando-pdf .cip-empresa strong,
+.exportando-pdf .cip-reporte-nombre strong {
+  font-size: 20px;
+}
+
+.exportando-pdf .cip-resumen {
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.exportando-pdf .cip-resumen-dato {
+  padding: 6px 10px;
+  min-height: 30px;
+}
+
+.exportando-pdf .cip-resumen-dato .cip-campo {
+  font-size: 10px;
+}
+
+.exportando-pdf .cip-resumen-dato strong {
+  font-size: 11px;
+}
+
+.exportando-pdf .tabla-ejecucion-cip {
+  min-width: 0;
+  font-size: 10px;
+}
+
+.exportando-pdf .tabla-ejecucion-cip th,
+.exportando-pdf .tabla-ejecucion-cip td {
+  padding: 5px 6px;
+  line-height: 1.15;
+}
+
+.exportando-pdf .tabla-ejecucion-cip td.agua {
+  padding-right: 7px;
+}
+
+.exportando-pdf .cip-nota {
+  font-size: 9px;
+}
+
+@media (max-width: 1100px) {
+  .cip-resumen {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .dato-tiempo .fila-tiempo {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cip-portada {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .cip-reporte-nombre {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .cip-logo-femsa {
+    width: 110px;
+  }
+
+  .cip-empresa strong {
+    font-size: 20px;
+  }
+
+  .cip-resumen-dato {
+    grid-template-columns: minmax(110px, .7fr) minmax(0, 1.3fr);
+    padding: 8px 10px;
+  }
+
+  .cip-titulo-tabla {
+    flex-direction: column;
+    gap: 3px;
   }
 }

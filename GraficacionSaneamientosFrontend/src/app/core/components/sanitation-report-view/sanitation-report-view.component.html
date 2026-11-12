@@ -51,6 +51,10 @@
             </span>
 
             <span>
+              <b>Fin:</b> {{ formatearFecha(header?.finishTime) }}
+            </span>
+
+            <span>
               <b>Duración:</b>
               {{ calcularDuracion(header?.startTime, header?.finishTime) }}
             </span>
@@ -76,38 +80,6 @@
       </div>
 
       <div class="reporte-body">
-
-        <div class="columna-izquierda">
-
-          <div class="bloque">
-            <h3>Etapas del proceso</h3>
-
-            <div class="tabla-pasos-wrapper">
-              <table class="tabla-pasos tabla-etapas">
-
-                <thead>
-                  <tr>
-                    <th>Etapa</th>
-                    <th>Duración</th>
-                    <th>Descripción</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  @for (paso of steps; track paso.step) {
-                    <tr>
-                      <td>{{ paso.step }}</td>
-                      <td>{{ formatearDuracion(paso.duracionSegundos) }}</td>
-                      <td>{{ paso.descripcion }}</td>
-                    </tr>
-                  }
-                </tbody>
-
-              </table>
-            </div>
-          </div>
-
-        </div>
 
         <div class="columna-derecha">
 
@@ -194,131 +166,111 @@
 
       </div>
 
-      <div class="bloque bloque-agua-layout">
+      <!-- Ejecución de CIP: conserva clase bloque-agua-layout para el paginado PDF -->
+      <section class="bloque bloque-agua-layout bloque-ejecucion-layout" aria-label="Ejecución de CIP">
 
-        <h3 class="titulo-indicadores-agua">Indicadores de agua</h3>
-
-        <div class="agua-graficas-section">
-
-          <div class="grafica-agua-card compacta">
-            <h3>Agua Tratada Consumida vs Agua Recolectada</h3>
-
-            <div class="custom-legend compacta">
-
-              <div class="legend-item">
-                <span class="legend-color color-recolectada"></span>
-
-                <span>
-                  <b>Agua Recuperada Recolectada:</b>
-                  {{ summaryRecolectada.recuperadaRecolectada }}
-                  -
-                  {{ summaryRecolectada.porcentajeRecolectada }}%
-                </span>
-              </div>
-
-              <div class="legend-item">
-                <span class="legend-color color-no-recolectada"></span>
-
-                <span>
-                  <b>Agua No Recolectada / Drenaje:</b>
-                  {{ summaryRecolectada.noRecolectada }}
-                  -
-                  {{ summaryRecolectada.porcentajeNoRecolectada }}%
-                </span>
-              </div>
-
-            </div>
-
-            <div class="pie-chart-wrapper compacta">
-              <p-chart
-                type="doughnut"
-                [data]="chartRecolectada"
-                [options]="chartRecolectadaOptions"
-                (click)="$event.stopPropagation()"
-                (mousedown)="$event.stopPropagation()">
-              </p-chart>
+        <!-- Encabezado de la sección: referencia visual de Coca-Cola FEMSA -->
+        <div class="cip-portada">
+          <div class="cip-identidad">
+            <img class="cip-logo-femsa" src="assets/LOGO_FEMSA.png" alt="Coca-Cola FEMSA" />
+            <div class="cip-empresa">
+              <strong>Coca-Cola FEMSA</strong>
+              <span>Planta Coatepec</span>
             </div>
           </div>
-
-          <div class="grafica-agua-card compacta">
-            <h3>Agua Tratada vs Agua Recuperada Consumidas</h3>
-
-            <div class="custom-legend compacta">
-
-              <div class="legend-item">
-                <span class="legend-color color-tratada-consumida"></span>
-
-                <span>
-                  <b>Agua Tratada Consumida:</b>
-                  {{ summaryConsumida.aguaTratadaConsumida }}
-                  -
-                  {{ summaryConsumida.porcentajeAguaTratadaConsumida }}%
-                </span>
-              </div>
-
-              <div class="legend-item">
-                <span class="legend-color color-recuperada-consumida"></span>
-
-                <span>
-                  <b>Agua Recuperada Consumida:</b>
-                  {{ summaryConsumida.recuperadaConsumida }}
-                  -
-                  {{ summaryConsumida.porcentajeRecuperadaConsumida }}%
-                </span>
-              </div>
-
-            </div>
-
-            <div class="pie-chart-wrapper compacta">
-              <p-chart
-                type="doughnut"
-                [data]="chartConsumida"
-                [options]="chartConsumidaOptions"
-                (click)="$event.stopPropagation()"
-                (mousedown)="$event.stopPropagation()">
-              </p-chart>
-            </div>
+          <div class="cip-reporte-nombre">
+            <small>INFORME DE PROCESO</small>
+            <strong>REPORTE DE CIP</strong>
           </div>
-
         </div>
 
-        <div class="agua-tabla-section">
-          <h3>Registros de Aguas por Pasos</h3>
+        <div class="cip-resumen">
+          <div class="cip-resumen-grupo">
+            <div class="cip-resumen-dato">
+              <span class="cip-campo">LOTE / REFERENCIA</span>
+              <strong>{{ header?.startTime ? (header.startTime | date:'yyyyMMdd HHmmss') : 'N/A' }}</strong>
+            </div>
+            <div class="cip-resumen-dato">
+              <span class="cip-campo">CIRCUITO DE CIP</span>
+              <strong>{{ header?.objectName || 'N/A' }}</strong>
+            </div>
+            <div class="cip-resumen-dato">
+              <span class="cip-campo">TIPO DE CIP</span>
+              <strong>{{ header?.recipeName || 'N/A' }}</strong>
+            </div>
+          </div>
 
-          <div class="tabla-pasos-wrapper tabla-recuperada-large-wrapper">
-            <table class="tabla-pasos tabla-recuperada-large">
+          <div class="cip-resumen-grupo">
+            <div class="cip-resumen-dato">
+              <span class="cip-campo">INICIO</span>
+              <strong>{{ header?.startTime ? (header.startTime | date:'dd/MM/yyyy HH:mm:ss') : 'N/A' }}</strong>
+            </div>
+            <div class="cip-resumen-dato">
+              <span class="cip-campo">TERMINACIÓN</span>
+              <strong>{{ header?.finishTime ? (header.finishTime | date:'dd/MM/yyyy HH:mm:ss') : 'N/A' }}</strong>
+            </div>
+            <div class="cip-resumen-dato">
+              <span class="cip-campo">TOTAL AGUA TRATADA [Lts]</span>
+              <strong>{{ header?.waterAccum != null ? (header.waterAccum | number:'1.2-2') : 'N/A' }}</strong>
+            </div>
+          </div>
+        </div>
 
-              <thead>
+        <div class="cip-titulo-tabla">
+          <h3 class="titulo-ejecucion-cip">EJECUCIÓN DE CIP</h3>
+          <span>Detalle de etapas ejecutadas</span>
+        </div>
+
+        <div class="tabla-ejecucion-wrapper">
+          <table class="tabla-ejecucion-cip">
+            <thead>
+              <tr>
+                <th scope="col">PASO</th>
+                <th scope="col">INICIO</th>
+                <th scope="col">TERMINACIÓN</th>
+                <th scope="col">DURACIÓN</th>
+                <th scope="col">AGUA TRATADA [Lts]</th>
+                <th scope="col">AGUA RECUPERADA [Lts]</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (paso of steps; track paso.step) {
                 <tr>
-                  <th>Descripción</th>
-                  <th>Agua Tratada Consumida</th>
-                  <th>Agua Recuperada Consumida</th>
-                  <th>Agua Recuperada Recolectada</th>
+                  <td class="descripcion">
+                    <span class="numero-paso">{{ paso.step }}.</span>
+                    {{ paso.descripcion }}
+                  </td>
+                  <td class="fecha">{{ paso.inicio ? (paso.inicio | date:'dd/MM/yyyy HH:mm:ss') : 'N/A' }}</td>
+                  <td class="fecha">{{ paso.terminacion ? (paso.terminacion | date:'dd/MM/yyyy HH:mm:ss') : 'N/A' }}</td>
+                  <td class="duracion">{{ paso.duracionHms ?? 'N/A' }}</td>
+                  <td class="agua">{{ paso.aguaTratada != null ? (paso.aguaTratada | number:'1.2-2') : 'N/A' }}</td>
+                  <!-- recovered_water_sent solo existe como total del proceso. -->
+                  <td class="agua dato-no-desglosado" title="cleaning_waters.recovered_water_sent es un total del proceso; no está desglosado por etapa.">—</td>
                 </tr>
-              </thead>
-
-              <tbody>
-                @for (row of getWaterRecoveryRows(); track row.step) {
-                  <tr>
-                    <td>{{ row.descripcion }}</td>
-                    <td class="num">{{ row.aguaTratadaConsumida }}</td>
-                    <td class="num">{{ row.aguaRecuperadaConsumida }}</td>
-                    <td class="num">{{ row.aguaRecuperadaRecolectada }}</td>
-                  </tr>
-                }
-
-                @if (getWaterRecoveryRows().length === 0) {
-                  <tr>
-                    <td colspan="4">No hay datos de agua recuperada disponibles</td>
-                  </tr>
-                }
-              </tbody>
-
-            </table>
-          </div>
+              } @empty {
+                <tr>
+                  <td colspan="6" class="tabla-vacia">No hay etapas registradas para este proceso.</td>
+                </tr>
+              }
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="4" class="texto-total">TOTAL DEL PROCESO</td>
+                <td class="agua total-valor">
+                  {{ header?.waterAccum != null ? (header.waterAccum | number:'1.2-2') : 'N/A' }}
+                </td>
+                <td class="agua total-valor">
+                  {{ waters?.recoveredWaterSent != null
+                    ? (waters.recoveredWaterSent | number:'1.2-2')
+                    : (header?.recoveredWaterSent != null
+                      ? (header.recoveredWaterSent | number:'1.2-2')
+                      : 'N/A') }}
+                </td>
+              </tr>
+            </tfoot>
+          </table>
         </div>
-
-      </div>
+      </section>
 
     </div>
 
